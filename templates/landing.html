@@ -141,19 +141,36 @@
     }
     
     .btn-custom-secondary {
-        background: transparent;
-        color: var(--primary-dark);
-        border: 2px solid var(--primary-dark);
+        background: rgba(255, 255, 255, 0.9);
+        color: #1a1a1a;
+        border: 2px solid rgba(255, 255, 255, 0.95);
         padding: 10px 22px;
         border-radius: 8px;
         font-weight: 600;
         transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     
     .btn-custom-secondary:hover {
-        background: var(--primary-dark);
-        color: white;
+        background: white;
+        color: #1e3a8a;
         transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Force black text with shadow in hero section for high contrast */
+    .hero-text-white {
+        color: #1a1a1a !important;
+        text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8), 
+                     -1px -1px 2px rgba(255, 255, 255, 0.6),
+                     0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    
+    .hero-text-yellow {
+        color: #0a0a0a !important;
+        text-shadow: 2px 2px 4px rgba(253, 224, 71, 0.9),
+                     -1px -1px 2px rgba(253, 224, 71, 0.7),
+                     0 0 15px rgba(253, 224, 71, 0.6);
     }
 </style>
 {% endblock %}
@@ -172,12 +189,12 @@
         <div class="flex flex-col lg:flex-row items-center justify-between">
             <!-- Left Content -->
             <div class="lg:w-1/2 text-center lg:text-left fade-in-left">
-                <h1 class="text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                <h1 class="text-5xl lg:text-6xl font-bold mb-6 leading-tight hero-text-white">
                     Unlock Your 
-                    <span class="text-accent-warm">Future</span> 
+                    <span class="hero-text-yellow">Future</span> 
                     with Scholarships
                 </h1>
-                <p class="text-xl lg:text-2xl mb-8 text-gray-200 leading-relaxed">
+                <p class="text-xl lg:text-2xl mb-8 hero-text-white leading-relaxed">
                     Discover opportunities, apply seamlessly, and transform your educational journey with our comprehensive scholarship management platform.
                 </p>
                 
@@ -205,12 +222,12 @@
                 <!-- Stats -->
                 <div class="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
                     <div class="text-center lg:text-left">
-                        <div class="text-3xl font-bold text-accent-warm bounce-in">{{ total_scholarships|default:"50+" }}</div>
-                        <div class="text-gray-300">Active Scholarships</div>
+                        <div class="text-3xl font-bold hero-text-yellow bounce-in">{{ total_scholarships|default:"50+" }}</div>
+                        <div class="hero-text-white">Active Scholarships</div>
                     </div>
                     <div class="text-center lg:text-left">
-                        <div class="text-3xl font-bold text-accent-warm bounce-in" style="animation-delay: 0.2s;">{{ total_applications|default:"1000+" }}</div>
-                        <div class="text-gray-300">Applications Processed</div>
+                        <div class="text-3xl font-bold hero-text-yellow bounce-in" style="animation-delay: 0.2s;">{{ total_applications|default:"1000+" }}</div>
+                        <div class="hero-text-white">Applications Processed</div>div>
                     </div>
                 </div>
             </div>
@@ -232,13 +249,13 @@
                                                 </svg>
                                             </div>
                                             <div>
-                                                <div class="text-white font-semibold">Merit Scholarship</div>
-                                                <div class="text-gray-300 text-sm">$5,000 Award</div>
+                                                <div class="hero-text-white font-semibold">Merit Scholarship</div>
+                                                <div class="hero-text-white text-sm">$5,000 Award</div>
                                             </div>
                                         </div>
-                                        <div class="text-green-400 text-sm font-medium">Available</div>
+                                        <div class="text-sm font-medium hero-text-white">Available</div>
                                     </div>
-                                    <div x-show="expanded" x-transition class="mt-3 text-gray-300 text-sm">
+                                    <div x-show="expanded" x-transition class="mt-3 hero-text-white text-sm">
                                         Academic excellence program for outstanding students.
                                     </div>
                                 </div>
@@ -252,13 +269,13 @@
                                                 </svg>
                                             </div>
                                             <div>
-                                                <div class="text-white font-semibold">STEM Excellence</div>
-                                                <div class="text-gray-300 text-sm">$8,000 Award</div>
+                                                <div class="hero-text-white font-semibold">STEM Excellence</div>
+                                                <div class="hero-text-white text-sm">$8,000 Award</div>
                                             </div>
                                         </div>
-                                        <div class="text-yellow-400 text-sm font-medium">3 Days Left</div>
+                                        <div class="hero-text-yellow text-sm font-medium">3 Days Left</div>
                                     </div>
-                                    <div x-show="expanded" x-transition class="mt-3 text-gray-300 text-sm">
+                                    <div x-show="expanded" x-transition class="mt-3 hero-text-white text-sm">
                                         Supporting innovation in Science, Technology, Engineering & Math.
                                     </div>
                                 </div>
@@ -272,13 +289,13 @@
                                                 </svg>
                                             </div>
                                             <div>
-                                                <div class="text-white font-semibold">Community Impact</div>
-                                                <div class="text-gray-300 text-sm">$3,000 Award</div>
+                                                <div class="hero-text-white font-semibold">Community Impact</div>
+                                                <div class="hero-text-white text-sm">$3,000 Award</div>
                                             </div>
                                         </div>
-                                        <div class="text-green-400 text-sm font-medium">Available</div>
+                                        <div class="hero-text-white text-sm font-medium">Available</div>
                                     </div>
-                                    <div x-show="expanded" x-transition class="mt-3 text-gray-300 text-sm">
+                                    <div x-show="expanded" x-transition class="mt-3 hero-text-white text-sm">
                                         Recognizing students making a difference in their communities.
                                     </div>
                                 </div>

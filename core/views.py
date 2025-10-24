@@ -486,7 +486,19 @@ def scholarship_detail(request, scholarship_id):
         messages.error(request, 'Access denied. Student access required.')
         return redirect('core:landing_page')
     
-    scholarship = get_object_or_404(Scholarship, id=scholarship_id, is_active=True)
+    scholarship = get_object_or_404(
+        Scholarship.objects.prefetch_related('requirements'),
+        id=scholarship_id,
+        is_active=True
+    )
+    
+    # Group requirements by category
+    requirements_by_category = {}
+    for req in scholarship.requirements.all():
+        category = req.get_category_display()
+        if category not in requirements_by_category:
+            requirements_by_category[category] = []
+        requirements_by_category[category].append(req)
     
     # Check if user has already applied
     existing_application = Application.objects.filter(
@@ -503,6 +515,7 @@ def scholarship_detail(request, scholarship_id):
     
     context = {
         'scholarship': scholarship,
+        'requirements_by_category': requirements_by_category,
         'existing_application': existing_application,
         'can_apply': can_apply,
     }
@@ -1116,6 +1129,22 @@ def create_scholarship(request):
             # Save the many-to-many relationships (includes newly created requirements)
             form.save_m2m()
             
+            # Handle scholarship requirements
+            scholarship_requirements = []
+            for key, value in request.POST.items():
+                if key.startswith('scholarship_requirement_') and value.strip():
+                    scholarship_requirements.append(value.strip())
+            
+            # Create ScholarshipRequirement objects
+            from .models import ScholarshipRequirement
+            for idx, req_description in enumerate(scholarship_requirements, start=1):
+                ScholarshipRequirement.objects.create(
+                    scholarship=scholarship,
+                    category='eligibility',  # Default category
+                    description=req_description,
+                    order=idx
+                )
+            
             messages.success(request, f'Scholarship "{scholarship.title}" created successfully!')
             return redirect('core:manage_scholarships')
         else:
@@ -1144,6 +1173,27 @@ def edit_scholarship(request, scholarship_id):
         form = ScholarshipForm(request.POST, instance=scholarship)
         if form.is_valid():
             scholarship = form.save()
+            
+            # Handle scholarship requirements
+            # First, delete existing requirements
+            from .models import ScholarshipRequirement
+            scholarship.requirements.all().delete()
+            
+            # Then create new ones from the form
+            scholarship_requirements = []
+            for key, value in request.POST.items():
+                if key.startswith('scholarship_requirement_') and value.strip():
+                    scholarship_requirements.append(value.strip())
+            
+            # Create ScholarshipRequirement objects
+            for idx, req_description in enumerate(scholarship_requirements, start=1):
+                ScholarshipRequirement.objects.create(
+                    scholarship=scholarship,
+                    category='eligibility',  # Default category
+                    description=req_description,
+                    order=idx
+                )
+            
             messages.success(request, f'Scholarship "{scholarship.title}" updated successfully!')
             return redirect('core:manage_scholarships')
         else:

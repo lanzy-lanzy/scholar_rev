@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import UserProfile, Scholarship, Application, Notification, ApplicationDocument
+from .models import UserProfile, Scholarship, Application, Notification, ApplicationDocument, ScholarshipRequirement
 
 
 class UserProfileInline(admin.StackedInline):
@@ -34,6 +34,14 @@ class UserProfileAdmin(admin.ModelAdmin):
     ordering = ('user__username',)
 
 
+class ScholarshipRequirementInline(admin.TabularInline):
+    """Inline admin for ScholarshipRequirement."""
+    model = ScholarshipRequirement
+    extra = 1
+    fields = ('category', 'description', 'notes', 'order')
+    ordering = ['category', 'order']
+
+
 @admin.register(Scholarship)
 class ScholarshipAdmin(admin.ModelAdmin):
     """Admin interface for Scholarship."""
@@ -42,6 +50,7 @@ class ScholarshipAdmin(admin.ModelAdmin):
     search_fields = ('title', 'description')
     ordering = ('-created_at',)
     readonly_fields = ('created_at', 'updated_at', 'applications_count', 'approved_applications_count')
+    inlines = (ScholarshipRequirementInline,)
     
     fieldsets = (
         ('Basic Information', {

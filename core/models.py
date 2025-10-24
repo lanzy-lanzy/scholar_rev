@@ -182,6 +182,49 @@ class Scholarship(models.Model):
         return max(0, self.available_slots - self.approved_applications_count)
 
 
+class ScholarshipRequirement(models.Model):
+    """Detailed requirements for scholarships."""
+    
+    REQUIREMENT_CATEGORY_CHOICES = [
+        ('academic', 'Academic Requirements'),
+        ('documentation', 'Documentation Requirements'),
+        ('eligibility', 'Eligibility Requirements'),
+        ('additional', 'Additional Requirements'),
+    ]
+    
+    scholarship = models.ForeignKey(
+        Scholarship,
+        on_delete=models.CASCADE,
+        related_name='requirements'
+    )
+    category = models.CharField(
+        max_length=20,
+        choices=REQUIREMENT_CATEGORY_CHOICES,
+        default='eligibility'
+    )
+    description = models.TextField(
+        help_text="Requirement description"
+    )
+    notes = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Additional notes or clarifications"
+    )
+    order = models.PositiveIntegerField(
+        default=0,
+        help_text="Display order within category"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['category', 'order', 'created_at']
+        verbose_name = 'Scholarship Requirement'
+        verbose_name_plural = 'Scholarship Requirements'
+    
+    def __str__(self):
+        return f"{self.scholarship.title} - {self.get_category_display()}: {self.description[:50]}"
+
+
 class Application(models.Model):
     """Student applications for scholarships."""
     

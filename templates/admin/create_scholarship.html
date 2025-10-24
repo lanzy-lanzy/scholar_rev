@@ -4,509 +4,540 @@
 
 {% block extra_css %}
 <style>
-    .form-field {
-        transition: all 0.3s ease;
+    :root {
+        --gradient-primary: linear-gradient(135deg, #2c3930 0%, #4a5d4f 100%);
+        --gradient-accent: linear-gradient(135deg, #c8b896 0%, #dcd7c9 100%);
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+        --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
     }
     
-    .form-field:focus-within {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(44, 57, 48, 0.1);
+    body {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        min-height: 100vh;
     }
     
-    .floating-label {
-        position: absolute;
-        left: 16px;
-        top: 50%;
-        transform: translateY(-50%);
+    .modern-card {
         background: white;
-        padding: 0 6px;
-        color: var(--accent-warm);
-        transition: all 0.3s ease;
-        pointer-events: none;
-        z-index: 10;
-        font-weight: 500;
-        font-size: 0.875rem;
+        border-radius: 20px;
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(0, 0, 0, 0.05);
     }
     
-    .form-input:focus + .floating-label,
-    .form-input:not(:placeholder-shown) + .floating-label {
-        top: -8px;
-        font-size: 0.75rem;
-        color: var(--primary-dark);
-        font-weight: 600;
-    }
-    
-    .form-input {
-        padding: 16px 16px 8px 16px;
-        border-color: var(--neutral-light);
-        height: 56px;
-        background-color: white !important;
-        color: var(--primary-dark) !important;
-    }
-    
-    .form-input::placeholder {
-        color: #9ca3af !important;
-        opacity: 0.7;
-    }
-    
-    textarea.form-input {
-        height: auto !important;
-        color: var(--primary-dark) !important;
-        background-color: white !important;
-    }
-    
-    /* Special styling for datetime-local input */
-    .form-input[type="datetime-local"] {
-        padding: 12px 16px;
-        font-family: inherit;
-        color: var(--primary-dark);
-    }
-    
-    .form-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-        background: transparent;
-        bottom: 0;
-        color: transparent;
-        cursor: pointer;
-        height: auto;
-        left: 0;
-        position: absolute;
-        right: 0;
-        top: 0;
-        width: auto;
-    }
-    
-    /* Special handling for currency input */
-    .currency-input {
-        padding-left: 40px !important;
-        background-color: white !important;
-        color: var(--primary-dark) !important;
-    }
-    
-    .currency-input + .floating-label {
-        left: 40px;
-    }
-    
-    .currency-input:focus + .floating-label,
-    .currency-input:not(:placeholder-shown) + .floating-label {
-        left: 40px;
-        top: -8px;
-    }
-    
-    .form-input:focus {
-        border-color: var(--primary-dark);
-        box-shadow: 0 0 0 3px rgba(44, 57, 48, 0.1);
-    }
-    
-    .progress-bar {
-        height: 6px;
-        background: linear-gradient(90deg, var(--primary-dark) 0%, var(--accent-warm) 100%);
-        border-radius: 3px;
-        transition: width 0.3s ease;
-    }
-    
-    .animate-fade-in {
-        animation: fadeIn 0.5s ease-in-out;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .animate-slide-up {
-        animation: slideUp 0.3s ease-out;
-    }
-    
-    @keyframes slideUp {
-        from { transform: translateY(10px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-    
-    .animate-fade-out {
-        animation: fadeOut 0.3s ease-out forwards;
-    }
-    
-    @keyframes fadeOut {
-        from { opacity: 1; transform: translateY(0); }
-        to { opacity: 0; transform: translateY(-10px); }
-    }
-    
-    .theme-gradient-bg {
-        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 50%, var(--accent-warm) 100%);
-    }
-    
-    .glass-effect {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--neutral-light);
-    }
-    
-    .currency-input {
-        font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-        font-weight: 600;
-        color: var(--primary-dark);
-    }
-    
-    .error-shake {
-        animation: shake 0.5s ease-in-out;
-    }
-    
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
-    }
-    
-    .character-counter {
-        font-size: 0.75rem;
-        color: var(--accent-warm);
-        text-align: right;
-        margin-top: 4px;
-        font-weight: 500;
-    }
-    
-    .character-counter.warning {
-        color: #f59e0b;
-    }
-    
-    .character-counter.danger {
-        color: #ef4444;
-    }
-    
-    .theme-header-icon {
-        background: linear-gradient(135deg, var(--primary-dark), var(--accent-warm));
+    .modern-breadcrumb {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        box-shadow: var(--shadow-sm);
     }
     
     .breadcrumb-link {
-        color: var(--primary-dark);
-        transition: color 0.2s ease;
+        color: #6c757d;
+        font-weight: 500;
+        transition: color 0.2s;
     }
     
     .breadcrumb-link:hover {
-        color: var(--accent-warm);
+        color: var(--primary-dark);
     }
     
-    .form-section-title {
-        color: var(--primary-dark);
+    .progress-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .progress-bar-container {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        height: 8px;
+    }
+    
+    .progress-bar {
+        height: 100%;
+        background: white;
+        border-radius: 12px;
+        transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    }
+    
+    .page-header {
+        background: var(--gradient-primary);
+        border-radius: 20px;
+        padding: 3rem;
+        color: white;
+        box-shadow: var(--shadow-lg);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        transform: translate(30%, -30%);
+    }
+    
+    .header-icon {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 1.5rem;
+    }
+    
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #f0f0f0;
+    }
+    
+    .section-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--gradient-accent);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
         font-weight: 700;
-        border-bottom: 2px solid var(--neutral-light);
-        padding-bottom: 0.5rem;
+        color: var(--primary-dark);
+    }
+    
+    .input-group {
         margin-bottom: 1.5rem;
     }
     
-    .checkbox-container {
-        background: linear-gradient(135deg, var(--neutral-light) 0%, rgba(220, 215, 201, 0.5) 100%);
-        border: 2px solid var(--neutral-light);
+    .input-label {
+        display: block;
+        font-weight: 600;
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
-    .checkbox-container:hover {
-        border-color: var(--accent-warm);
+    .modern-input {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background: white;
     }
     
-    .progress-container {
-        background: var(--neutral-light);
+    .modern-input:focus {
+        outline: none;
+        border-color: var(--primary-dark);
+        box-shadow: 0 0 0 4px rgba(44, 57, 48, 0.1);
     }
+    
+    .currency-wrapper {
+        position: relative;
+    }
+    
+    .currency-symbol {
+        position: absolute;
+        left: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--primary-dark);
+    }
+    
+    .currency-input {
+        padding-left: 3rem !important;
+        font-family: 'SF Mono', monospace;
+        font-weight: 600;
+    }
+    
+    .modern-textarea {
+        min-height: 140px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+    
+    .char-counter {
+        text-align: right;
+        font-size: 0.75rem;
+        color: #6c757d;
+        margin-top: 0.5rem;
+    }
+    
+    .requirements-container {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        border: 2px solid #dee2e6;
+    }
+    
+    .requirement-item {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1.25rem;
+        display: flex;
+        gap: 1rem;
+        transition: all 0.3s;
+        margin-bottom: 1rem;
+    }
+    
+    .requirement-item:hover {
+        border-color: var(--primary-dark);
+        transform: translateX(4px);
+    }
+    
+    .requirement-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: 1rem;
+        padding: 0.5rem;
+    }
+    
+    .requirement-input:focus {
+        outline: none;
+    }
+    
+    .remove-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #fee;
+        color: #dc3545;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .remove-btn:hover {
+        background: #dc3545;
+        color: white;
+        transform: rotate(90deg);
+    }
+    
+    .add-btn {
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        padding: 0.875rem 1.75rem;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .add-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .info-box {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border-left: 4px solid #2196f3;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-top: 1.5rem;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+    }
+    
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-primary-modern {
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: var(--shadow-md);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .btn-outline-modern {
+        background: white;
+        color: var(--primary-dark);
+        border: 2px solid var(--primary-dark);
+        padding: 1rem 2.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .btn-outline-modern:hover {
+        background: var(--primary-dark);
+        color: white;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; transform: scale(0.95); }
+    }
+    
+    .animate-fade-in { animation: fadeIn 0.6s ease-out; }
+    .animate-slide-up { animation: slideUp 0.4s ease-out; }
+    .animate-fade-out { animation: fadeOut 0.3s ease-out forwards; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="min-h-screen theme-gradient-bg py-8">
-    <div class="max-w-4xl mx-auto px-4">
+<div class="min-h-screen py-8">
+    <div class="max-w-5xl mx-auto px-4">
         <!-- Breadcrumb -->
-        <nav class="flex mb-6 animate-fade-in" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3 glass-effect rounded-lg px-6 py-3 shadow-lg">
-                <li class="inline-flex items-center">
-                    <a href="{% url 'core:admin_dashboard' %}" class="breadcrumb-link inline-flex items-center text-sm font-medium">
-                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
-                        </svg>
-                        Admin Dashboard
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        <a href="{% url 'core:manage_scholarships' %}" class="breadcrumb-link ml-1 text-sm font-medium md:ml-2">Manage Scholarships</a>
-                    </div>
-                </li>
-                <li aria-current="page">
-                    <div class="flex items-center">
-                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Create Scholarship</span>
-                    </div>
-                </li>
-            </ol>
+        <nav class="mb-6 animate-fade-in">
+            <div class="modern-breadcrumb">
+                <ol class="flex items-center space-x-2 text-sm">
+                    <li><a href="{% url 'core:admin_dashboard' %}" class="breadcrumb-link flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+                        Dashboard</a></li>
+                    <li><svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></li>
+                    <li><a href="{% url 'core:manage_scholarships' %}" class="breadcrumb-link">Scholarships</a></li>
+                    <li><svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></li>
+                    <li><span class="text-gray-500 font-medium">Create New</span></li>
+                </ol>
+            </div>
         </nav>
 
-        <!-- Progress Indicator -->
-        <div class="glass-effect rounded-xl p-6 mb-6 animate-fade-in shadow-lg">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-bold" style="color: var(--primary-dark);">Form Progress</h2>
-                <span id="progress-text" class="text-sm font-semibold" style="color: var(--accent-warm);">0% Complete</span>
+        <!-- Progress -->
+        <div class="progress-card mb-6 animate-fade-in">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-bold">Form Completion</h2>
+                <span id="progress-text" class="text-sm font-semibold">0% Complete</span>
             </div>
-            <div class="w-full progress-container rounded-full h-3">
-                <div id="progress-bar" class="progress-bar w-0 rounded-full"></div>
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
             </div>
         </div>
 
-        <!-- Page Header -->
-        <div class="glass-effect rounded-xl mb-8 animate-fade-in shadow-xl">
-            <div class="px-8 py-10">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h1 class="text-4xl font-bold mb-3" style="color: var(--primary-dark);">Create New Scholarship</h1>
-                        <p class="text-lg" style="color: var(--accent-warm);">Fill in the details below to create a new scholarship opportunity for students.</p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <div class="theme-header-icon p-5 rounded-2xl shadow-lg">
-                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                        </div>
-                    </div>
+        <!-- Header -->
+        <div class="page-header mb-8 animate-fade-in">
+            <div class="flex items-center justify-between relative z-10">
+                <div>
+                    <h1 class="text-4xl font-bold mb-2">Create New Scholarship</h1>
+                    <p class="text-lg opacity-90">Design and launch a new scholarship opportunity</p>
+                </div>
+                <div class="header-icon hidden md:block">
+                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
                 </div>
             </div>
         </div>
 
         <!-- Form -->
-        <div class="glass-effect rounded-xl shadow-2xl animate-fade-in">
+        <div class="modern-card animate-fade-in">
             <form method="post" class="p-8" id="scholarshipForm">
                 {% csrf_token %}
                 
                 {% if form.non_field_errors %}
-                    <div class="mb-8 rounded-xl bg-red-50 p-6 border-l-4 border-red-400 animate-slide-up">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg class="h-6 w-6 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-sm font-medium text-red-800">There were errors with your submission:</h3>
-                                <div class="mt-2 text-sm text-red-700">
-                                    <ul class="list-disc pl-5 space-y-1">
-                                        {% for error in form.non_field_errors %}
-                                            <li>{{ error }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            </div>
+                <div class="mb-8 rounded-xl bg-red-50 p-6 border-l-4 border-red-500">
+                    <div class="flex gap-3">
+                        <svg class="h-6 w-6 text-red-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
+                        <div>
+                            <h3 class="font-bold text-red-800 mb-2">Submission Errors</h3>
+                            <ul class="list-disc pl-5 space-y-1 text-sm text-red-700">
+                                {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                            </ul>
                         </div>
                     </div>
+                </div>
                 {% endif %}
                 
-                <!-- Basic Information Section -->
-                <div class="mb-10">
-                    <h3 class="form-section-title text-xl">Basic Information</h3>
+                <!-- Basic Info -->
+                <div class="mb-12">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="section-title">Basic Information</h3>
+                    </div>
                     
-                    <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                        <!-- Title -->
-                        <div class="lg:col-span-2">
-                            <div class="form-field relative">
-                                {{ form.title }}
-                                <label for="{{ form.title.id_for_label }}" class="floating-label">
-                                    Scholarship Title *
-                                </label>
-                                <div class="absolute right-4 top-1/2 transform -translate-y-1/2">
-                                    <svg class="h-5 w-5" style="color: var(--accent-warm);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                                    </svg>
-                                </div>
-                                {% if form.title.errors %}
-                                    <p class="mt-2 text-sm text-red-600 animate-slide-up">{{ form.title.errors.0 }}</p>
-                                {% endif %}
-                                <div id="title-counter" class="character-counter"></div>
-                            </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="lg:col-span-2 input-group">
+                            <label class="input-label">Scholarship Title *</label>
+                            {{ form.title }}
+                            <div id="title-counter" class="char-counter"></div>
                         </div>
                         
-                        <!-- Award Amount -->
-                        <div>
-                            <div class="form-field relative">
+                        <div class="input-group">
+                            <label class="input-label">Award Amount (PHP) *</label>
+                            <div class="currency-wrapper">
+                                <span class="currency-symbol">₱</span>
                                 {{ form.award_amount }}
-                                <label for="{{ form.award_amount.id_for_label }}" class="floating-label">
-                                    Award Amount (PHP) *
-                                </label>
-                                <div class="absolute left-4 top-1/2 transform -translate-y-1/2 font-bold text-lg" style="color: var(--primary-dark);">
-                                    ₱
-                                </div>
-                                {% if form.award_amount.errors %}
-                                    <p class="mt-2 text-sm text-red-600 animate-slide-up">{{ form.award_amount.errors.0 }}</p>
-                                {% endif %}
                             </div>
                         </div>
                         
-                        <!-- Available Slots -->
-                        <div>
-                            <div class="form-field relative">
-                                {{ form.available_slots }}
-                                <label for="{{ form.available_slots.id_for_label }}" class="floating-label">
-                                    Available Slots *
-                                </label>
-                                <div class="absolute right-4 top-1/2 transform -translate-y-1/2">
-                                    <svg class="h-5 w-5" style="color: var(--accent-warm);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                    </svg>
-                                </div>
-                                {% if form.available_slots.errors %}
-                                    <p class="mt-2 text-sm text-red-600 animate-slide-up">{{ form.available_slots.errors.0 }}</p>
-                                {% endif %}
-                            </div>
+                        <div class="input-group">
+                            <label class="input-label">Available Slots *</label>
+                            {{ form.available_slots }}
                         </div>
                         
-                        <!-- Application Deadline -->
-                        <div class="lg:col-span-2">
-                            <div class="form-field relative">
-                                <label for="{{ form.application_deadline.id_for_label }}" class="block text-sm font-bold mb-3" style="color: var(--primary-dark);">
-                                    Application Deadline *
-                                </label>
-                                {{ form.application_deadline }}
-                                <div class="absolute right-4 top-12 transform -translate-y-1/2 pointer-events-none">
-                                    <svg class="h-5 w-5" style="color: var(--accent-warm);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                </div>
-                                {% if form.application_deadline.errors %}
-                                    <p class="mt-2 text-sm text-red-600 animate-slide-up">{{ form.application_deadline.errors.0 }}</p>
-                                {% endif %}
-                                <p class="mt-1 text-xs text-gray-500">Select the date and time when applications should close</p>
-                            </div>
+                        <div class="lg:col-span-2 input-group">
+                            <label class="input-label">Application Deadline *</label>
+                            {{ form.application_deadline }}
                         </div>
                     </div>
                 </div>
                 
-                <!-- Detailed Information Section -->
-                <div class="mb-10">
-                    <h3 class="form-section-title text-xl">Detailed Information</h3>
+                <!-- Details -->
+                <div class="mb-12">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <h3 class="section-title">Detailed Information</h3>
+                    </div>
                     
-                    <div class="grid grid-cols-1 gap-8">
-                        <!-- Description -->
-                        <div>
-                            <div class="form-field relative">
-                                <label for="{{ form.description.id_for_label }}" class="block text-sm font-bold mb-3" style="color: var(--primary-dark);">
-                                    Description *
-                                </label>
-                                {{ form.description }}
-                                {% if form.description.errors %}
-                                    <p class="mt-2 text-sm text-red-600 animate-slide-up">{{ form.description.errors.0 }}</p>
-                                {% endif %}
-                                <div id="description-counter" class="character-counter"></div>
-                            </div>
-                        </div>
-                        
-                        <!-- Eligibility Criteria -->
-                        <div>
-                            <div class="form-field relative">
-                                <label for="{{ form.eligibility_criteria.id_for_label }}" class="block text-sm font-bold mb-3" style="color: var(--primary-dark);">
-                                    Eligibility Criteria *
-                                </label>
-                                {{ form.eligibility_criteria }}
-                                {% if form.eligibility_criteria.errors %}
-                                    <p class="mt-2 text-sm text-red-600 animate-slide-up">{{ form.eligibility_criteria.errors.0 }}</p>
-                                {% endif %}
-                                <div id="eligibility-counter" class="character-counter"></div>
-                            </div>
-                        </div>
+                    <div class="input-group">
+                        <label class="input-label">Description *</label>
+                        {{ form.description }}
+                        <div id="description-counter" class="char-counter"></div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Eligibility Criteria *</label>
+                        {{ form.eligibility_criteria }}
+                        <div id="eligibility-counter" class="char-counter"></div>
                     </div>
                 </div>
                 
-                <!-- Document Requirements Section -->
-                <div class="mb-10">
-                    <h3 class="form-section-title text-xl">Document Requirements</h3>
+                <!-- Requirements -->
+                <div class="mb-12">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                        </div>
+                        <h3 class="section-title">Scholarship Requirements</h3>
+                    </div>
                     
-                    <div class="checkbox-container p-6 rounded-xl">
-                        <div class="mb-4 flex items-center justify-between">
-                            <p class="text-sm font-medium" style="color: var(--primary-dark);">
-                                Select which documents students must upload when applying for this scholarship:
-                            </p>
-                            <button type="button" id="addRequirementBtn" class="btn-primary px-4 py-2 text-sm flex items-center">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                </svg>
-                                Add New Requirement
+                    <div class="requirements-container">
+                        <div class="flex justify-between items-center mb-4">
+                            <p class="text-sm font-medium text-gray-700">Add eligibility requirements</p>
+                            <button type="button" id="addScholarshipRequirementBtn" class="add-btn">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Add Requirement
                             </button>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="existingRequirements">
+                        <div id="scholarshipRequirementsList"></div>
+                        
+                        <div id="scholarshipRequirementsEmpty" class="empty-state">
+                            <div class="empty-state-icon">
+                                <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                            </div>
+                            <p class="font-medium text-gray-600">No requirements added yet</p>
+                            <p class="text-sm text-gray-500 mt-1">Click "Add Requirement" to create eligibility criteria</p>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h4 class="font-bold text-blue-800 mb-1">About Requirements</h4>
+                            <p class="text-sm text-blue-700">These are specific criteria students must meet (e.g., "Minimum GPA of 3.0", "Must be a STEM major")</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Document Requirements -->
+                <div class="mb-12">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <h3 class="section-title">Document Requirements</h3>
+                    </div>
+                    
+                    <div class="requirements-container">
+                        <p class="text-sm font-medium text-gray-700 mb-4">Select required documents</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {% for choice in form.document_requirements %}
-                                <div class="flex items-start p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                                    <div class="flex items-center h-5">
-                                        {{ choice.tag }}
-                                    </div>
-                                    <div class="ml-3">
-                                        <label for="{{ choice.id_for_label }}" class="text-sm font-medium cursor-pointer" style="color: var(--primary-dark);">
-                                            {{ choice.choice_label }}
-                                        </label>
-                                    </div>
-                                </div>
-                            {% empty %}
-                                <div class="col-span-2 text-center py-8" id="emptyState">
-                                    <svg class="mx-auto h-12 w-12 mb-4" style="color: var(--accent-warm);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                    </svg>
-                                    <p style="color: var(--accent-warm);" class="font-medium">No document requirements available</p>
-                                    <p class="text-sm text-gray-500 mt-1">Click "Add New Requirement" to create custom requirements.</p>
-                                </div>
+                            <label class="flex items-center gap-3 p-3 bg-white rounded-lg border-2 border-gray-200 hover:border-gray-400 cursor-pointer transition">
+                                {{ choice.tag }}
+                                <span class="text-sm font-medium">{{ choice.choice_label }}</span>
+                            </label>
                             {% endfor %}
                         </div>
-                        
-                        <!-- Dynamic Requirements Container -->
-                        <div id="dynamicRequirements" class="mt-6 space-y-4"></div>
-                        
-                        {% if form.document_requirements.errors %}
-                            <p class="mt-2 text-sm text-red-600 animate-slide-up">{{ form.document_requirements.errors.0 }}</p>
-                        {% endif %}
-                        
-                        <div class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                            <div class="flex">
-                                <svg class="h-5 w-5 text-blue-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <div class="ml-3">
-                                    <h4 class="text-sm font-medium text-blue-800">Document Requirements Info</h4>
-                                    <p class="text-sm text-blue-700 mt-1">
-                                        Students will be required to upload the selected documents when applying for this scholarship. 
-                                        You can manage document requirements in the admin panel.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 
-                <!-- Status Section -->
-                <div class="mb-10">
-                    <h3 class="form-section-title text-xl">Status Settings</h3>
+                <!-- Status -->
+                <div class="mb-12">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="section-title">Status Settings</h3>
+                    </div>
                     
-                    <div class="checkbox-container p-6 rounded-xl">
-                        <div class="flex items-start">
-                            <div class="flex items-center h-6">
-                                {{ form.is_active }}
-                            </div>
-                            <div class="ml-4">
-                                <label for="{{ form.is_active.id_for_label }}" class="text-lg font-bold cursor-pointer" style="color: var(--primary-dark);">
-                                    Make Scholarship Active
-                                </label>
-                                <p class="mt-1" style="color: var(--accent-warm);">When active, this scholarship will be visible to students and they can apply for it.</p>
-                            </div>
+                    <label class="flex items-start gap-4 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-2 border-green-200 cursor-pointer">
+                        {{ form.is_active }}
+                        <div>
+                            <div class="font-bold text-gray-800 mb-1">Make Scholarship Active</div>
+                            <p class="text-sm text-gray-600">When active, students can view and apply for this scholarship</p>
                         </div>
-                        {% if form.is_active.errors %}
-                            <p class="mt-2 text-sm text-red-600 animate-slide-up">{{ form.is_active.errors.0 }}</p>
-                        {% endif %}
-                    </div>
+                    </label>
                 </div>
                 
-                <div class="mt-12 flex justify-end space-x-4">
-                    <a href="{% url 'core:manage_scholarships' %}" class="btn-outline px-8 py-3">
-                        Cancel
-                    </a>
-                    <button type="submit" class="btn-primary px-10 py-3 flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
+                <!-- Actions -->
+                <div class="flex justify-end gap-4 pt-6 border-t-2 border-gray-100">
+                    <a href="{% url 'core:manage_scholarships' %}" class="btn-outline-modern">Cancel</a>
+                    <button type="submit" class="btn-primary-modern">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                         Create Scholarship
                     </button>
                 </div>
@@ -514,603 +545,87 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('scholarshipForm');
-        const inputs = form.querySelectorAll('input, textarea, select');
-        const progressBar = document.getElementById('progress-bar');
-        const progressText = document.getElementById('progress-text');
-        
-        // Add CSS classes to form elements
-        inputs.forEach(input => {
-            if (input.type !== 'checkbox') {
-                input.classList.add('form-input', 'w-full', 'border', 'rounded-lg', 'transition-all', 'duration-200');
-                if (input.type !== 'datetime-local') {
-                    input.setAttribute('placeholder', ' ');
-                }
-            }
-            
-            if (input.id === 'id_award_amount') {
-                input.classList.add('currency-input');
-            }
-            
-            // Style textareas
-            if (input.tagName === 'TEXTAREA') {
-                input.classList.add('min-h-32', 'resize-y');
-                input.style.fontFamily = 'inherit';
-                input.style.padding = '16px';
-                input.style.height = 'auto';
-                input.style.minHeight = '120px';
-            }
-        });
-        
-        // Setup datetime input
-        const deadlineInput = document.getElementById('id_application_deadline');
-        if (deadlineInput) {
-            // Set minimum date to current date and time
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            
-            const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
-            deadlineInput.setAttribute('min', minDateTime);
-            
-            // Set default value to 30 days from now if empty
-            if (!deadlineInput.value) {
-                const futureDate = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000)); // 30 days from now
-                const futureYear = futureDate.getFullYear();
-                const futureMonth = String(futureDate.getMonth() + 1).padStart(2, '0');
-                const futureDay = String(futureDate.getDate()).padStart(2, '0');
-                const futureHours = String(futureDate.getHours()).padStart(2, '0');
-                const futureMinutes = String(futureDate.getMinutes()).padStart(2, '0');
-                
-                const defaultDateTime = `${futureYear}-${futureMonth}-${futureDay}T${futureHours}:${futureMinutes}`;
-                deadlineInput.value = defaultDateTime;
-            }
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('scholarshipForm');
+    const inputs = form.querySelectorAll('input, textarea, select');
+    
+    // Style inputs
+    inputs.forEach(input => {
+        if (input.type !== 'checkbox') {
+            input.classList.add('modern-input');
         }
-        
-        // Character counters
-        function setupCharacterCounter(fieldId, maxLength) {
-            const field = document.getElementById(fieldId);
-            const counter = document.getElementById(fieldId.replace('id_', '') + '-counter');
-            
-            if (field && counter) {
-                function updateCounter() {
-                    const length = field.value.length;
-                    counter.textContent = `${length}/${maxLength} characters`;
-                    
-                    if (length > maxLength * 0.9) {
-                        counter.classList.add('danger');
-                        counter.classList.remove('warning');
-                    } else if (length > maxLength * 0.7) {
-                        counter.classList.add('warning');
-                        counter.classList.remove('danger');
-                    } else {
-                        counter.classList.remove('warning', 'danger');
-                    }
-                }
-                
-                field.addEventListener('input', updateCounter);
-                updateCounter();
-            }
+        if (input.tagName === 'TEXTAREA') {
+            input.classList.add('modern-textarea');
         }
-        
-        setupCharacterCounter('id_title', 200);
-        setupCharacterCounter('id_description', 1000);
-        setupCharacterCounter('id_eligibility_criteria', 1000);
-        
-        // Progress tracking
-        function updateProgress() {
-            const requiredFields = ['id_title', 'id_award_amount', 'id_available_slots', 'id_application_deadline', 'id_description', 'id_eligibility_criteria'];
-            let filledFields = 0;
-            
-            requiredFields.forEach(fieldId => {
-                const field = document.getElementById(fieldId);
-                if (field && field.value.trim()) {
-                    filledFields++;
-                }
-            });
-            
-            const progress = (filledFields / requiredFields.length) * 100;
-            progressBar.style.width = progress + '%';
-            progressText.textContent = Math.round(progress) + '% Complete';
+        if (input.id === 'id_award_amount') {
+            input.classList.add('currency-input');
         }
-        
-        inputs.forEach(input => {
-            input.addEventListener('input', updateProgress);
-        });
-        
-        // Currency formatting
-        const awardAmountInput = document.getElementById('id_award_amount');
-        if (awardAmountInput) {
-            let isFormatting = false;
-            
-            awardAmountInput.addEventListener('input', function(e) {
-                if (isFormatting) return;
-                
-                isFormatting = true;
-                
-                // Get cursor position
-                const cursorPosition = e.target.selectionStart;
-                const oldValue = e.target.value;
-                
-                // Remove all non-digit characters except decimal point
-                let value = e.target.value.replace(/[^\d.]/g, '');
-                
-                // Handle multiple decimal points - keep only the first one
-                const decimalIndex = value.indexOf('.');
-                if (decimalIndex !== -1) {
-                    value = value.substring(0, decimalIndex + 1) + value.substring(decimalIndex + 1).replace(/\./g, '');
-                }
-                
-                // Limit decimal places to 2
-                if (value.includes('.')) {
-                    const parts = value.split('.');
-                    if (parts[1] && parts[1].length > 2) {
-                        parts[1] = parts[1].substring(0, 2);
-                        value = parts.join('.');
-                    }
-                }
-                
-                // Format with commas for thousands
-                if (value && !value.endsWith('.')) {
-                    const parts = value.split('.');
-                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                    value = parts.join('.');
-                }
-                
-                // Update the input value
-                e.target.value = value;
-                
-                // Restore cursor position (approximately)
-                const newCursorPosition = cursorPosition + (value.length - oldValue.length);
-                e.target.setSelectionRange(newCursorPosition, newCursorPosition);
-                
-                isFormatting = false;
-                updateProgress();
-            });
-            
-            // Handle paste events
-            awardAmountInput.addEventListener('paste', function(e) {
-                setTimeout(() => {
-                    const event = new Event('input', { bubbles: true });
-                    e.target.dispatchEvent(event);
-                }, 0);
-            });
-        }
-        
-        // Form validation with animations
-        form.addEventListener('submit', function(e) {
-            let isValid = true;
-            const requiredFields = ['id_title', 'id_award_amount', 'id_available_slots', 'id_application_deadline', 'id_description', 'id_eligibility_criteria'];
-            
-            // Remove existing error states
-            inputs.forEach(input => {
-                input.classList.remove('border-red-500', 'error-shake');
-                const errorMsg = document.getElementById(input.id + '-error');
-                if (errorMsg) {
-                    errorMsg.remove();
-                }
-            });
-            
-            requiredFields.forEach(fieldId => {
-                const field = document.getElementById(fieldId);
-                if (field && !field.value.trim()) {
-                    isValid = false;
-                    field.classList.add('border-red-500', 'error-shake');
-                    
-                    // Create error message
-                    const errorDiv = document.createElement('p');
-                    errorDiv.id = fieldId + '-error';
-                    errorDiv.className = 'mt-2 text-sm text-red-600 animate-slide-up';
-                    errorDiv.textContent = 'This field is required';
-                    field.parentNode.appendChild(errorDiv);
-                }
-            });
-            
-            // Validate award amount
-            const awardAmount = document.getElementById('id_award_amount');
-            if (awardAmount && awardAmount.value) {
-                const amount = parseFloat(awardAmount.value.replace(/[^\d.]/g, ''));
-                if (amount <= 0) {
-                    isValid = false;
-                    awardAmount.classList.add('border-red-500', 'error-shake');
-                    const errorDiv = document.createElement('p');
-                    errorDiv.className = 'mt-2 text-sm text-red-600 animate-slide-up';
-                    errorDiv.textContent = 'Award amount must be greater than 0';
-                    awardAmount.parentNode.appendChild(errorDiv);
-                }
-            }
-            
-            // Validate available slots
-            const slots = document.getElementById('id_available_slots');
-            if (slots && slots.value) {
-                const slotsValue = parseInt(slots.value);
-                if (slotsValue <= 0) {
-                    isValid = false;
-                    slots.classList.add('border-red-500', 'error-shake');
-                    const errorDiv = document.createElement('p');
-                    errorDiv.className = 'mt-2 text-sm text-red-600 animate-slide-up';
-                    errorDiv.textContent = 'Available slots must be greater than 0';
-                    slots.parentNode.appendChild(errorDiv);
-                }
-            }
-            
-            // Validate application deadline
-            const deadline = document.getElementById('id_application_deadline');
-            if (deadline && deadline.value) {
-                const deadlineDate = new Date(deadline.value);
-                const now = new Date();
-                if (deadlineDate <= now) {
-                    isValid = false;
-                    deadline.classList.add('border-red-500', 'error-shake');
-                    const errorDiv = document.createElement('p');
-                    errorDiv.className = 'mt-2 text-sm text-red-600 animate-slide-up';
-                    errorDiv.textContent = 'Application deadline must be in the future';
-                    deadline.parentNode.appendChild(errorDiv);
-                }
-            }
-            
-            if (!isValid) {
-                e.preventDefault();
-                // Scroll to first error with smooth animation
-                const firstError = document.querySelector('.border-red-500');
-                if (firstError) {
-                    firstError.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'center' 
-                    });
-                    
-                    // Focus the field after scrolling
-                    setTimeout(() => {
-                        firstError.focus();
-                    }, 500);
-                }
-            } else {
-                // Show loading state
-                const submitBtn = form.querySelector('button[type="submit"]');
-                submitBtn.innerHTML = `
-                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Creating Scholarship...
-                `;
-                submitBtn.disabled = true;
-            }
-        });
-        
-        // Initialize progress
-        updateProgress();
-        
-        // Dynamic Requirements Management
-        let requirementCounter = 0;
-        const addRequirementBtn = document.getElementById('addRequirementBtn');
-        const dynamicRequirements = document.getElementById('dynamicRequirements');
-        const existingRequirements = document.getElementById('existingRequirements');
-        const emptyState = document.getElementById('emptyState');
-        
-        // Document type choices
-        const documentTypes = [
-            { value: 'certificate_enrollment', label: 'Certificate of Enrollment' },
-            { value: 'certificate_grades', label: 'Certificate of Grades' },
-            { value: 'certificate_indigency', label: 'Certificate of Indigency' },
-            { value: 'birth_certificate', label: 'Birth Certificate' },
-            { value: 'barangay_clearance', label: 'Barangay Clearance' },
-            { value: 'police_clearance', label: 'Police Clearance' },
-            { value: 'medical_certificate', label: 'Medical Certificate' },
-            { value: 'recommendation_letter', label: 'Letter of Recommendation' },
-            { value: 'essay', label: 'Essay/Personal Statement' },
-            { value: 'transcript', label: 'Official Transcript' },
-            { value: 'tax_return', label: 'Tax Return/ITR' },
-            { value: 'payslip', label: 'Payslip/Income Certificate' },
-            { value: 'other', label: 'Other Document' }
-        ];
-        
-        addRequirementBtn.addEventListener('click', function() {
-            requirementCounter++;
-            const requirementId = `new_requirement_${requirementCounter}`;
-            
-            // Create requirement modal/card
-            const requirementCard = document.createElement('div');
-            requirementCard.className = 'border-2 border-blue-300 rounded-xl p-6 bg-blue-50 shadow-sm animate-slide-up';
-            requirementCard.id = requirementId;
-            
-            requirementCard.innerHTML = `
-                <div class="flex items-start justify-between mb-4">
-                    <h4 class="text-lg font-bold" style="color: var(--primary-dark);">Create New Document Requirement</h4>
-                    <button type="button" class="cancel-requirement text-gray-600 hover:text-gray-800 transition-colors" data-id="${requirementId}">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-                
-                <div class="space-y-4">
-                    <!-- Document Type -->
-                    <div>
-                        <label class="block text-sm font-bold mb-2" style="color: var(--primary-dark);">
-                            Document Type *
-                        </label>
-                        <select name="new_doc_type_${requirementCounter}" class="form-input w-full border rounded-lg" required>
-                            <option value="">Select document type...</option>
-                            ${documentTypes.map(type => `<option value="${type.value}">${type.label}</option>`).join('')}
-                        </select>
-                    </div>
-                    
-                    <!-- Custom Name (for 'Other' type) -->
-                    <div class="custom-name-field" style="display: none;">
-                        <label class="block text-sm font-bold mb-2" style="color: var(--primary-dark);">
-                            Custom Document Name *
-                        </label>
-                        <input type="text" name="new_doc_custom_name_${requirementCounter}" 
-                               class="form-input w-full border rounded-lg" 
-                               placeholder="Enter custom document name">
-                    </div>
-                    
-                    <!-- Description -->
-                    <div>
-                        <label class="block text-sm font-bold mb-2" style="color: var(--primary-dark);">
-                            Description/Instructions
-                        </label>
-                        <textarea name="new_doc_description_${requirementCounter}" 
-                                  class="form-input w-full border rounded-lg" 
-                                  rows="2" 
-                                  placeholder="Additional instructions for this document"></textarea>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- File Format Requirements -->
-                        <div>
-                            <label class="block text-sm font-bold mb-2" style="color: var(--primary-dark);">
-                                Allowed File Formats *
-                            </label>
-                            <input type="text" name="new_doc_formats_${requirementCounter}" 
-                                   class="form-input w-full border rounded-lg" 
-                                   value="PDF, DOC, DOCX, JPG, PNG" 
-                                   placeholder="e.g., PDF, DOC, DOCX" 
-                                   required>
-                        </div>
-                        
-                        <!-- Max File Size -->
-                        <div>
-                            <label class="block text-sm font-bold mb-2" style="color: var(--primary-dark);">
-                                Max File Size (MB) *
-                            </label>
-                            <input type="number" name="new_doc_max_size_${requirementCounter}" 
-                                   class="form-input w-full border rounded-lg" 
-                                   value="5" 
-                                   min="1" 
-                                   max="50" 
-                                   required>
-                        </div>
-                    </div>
-                    
-                    <!-- Is Required Checkbox -->
-                    <div class="flex items-center">
-                        <input type="checkbox" 
-                               id="new_doc_required_${requirementCounter}" 
-                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" 
-                               checked>
-                        <label for="new_doc_required_${requirementCounter}" class="ml-2 text-sm font-medium" style="color: var(--primary-dark);">
-                            This document is required
-                        </label>
-                    </div>
-                    
-                    <!-- Action Buttons -->
-                    <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-blue-200">
-                        <button type="button" class="cancel-requirement-btn px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-                            Cancel
-                        </button>
-                        <button type="button" class="save-requirement-btn btn-primary px-6 py-2">
-                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Save & Add to List
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            dynamicRequirements.appendChild(requirementCard);
-            
-            // Add event listener for document type change
-            const typeSelect = requirementCard.querySelector(`select[name="new_doc_type_${requirementCounter}"]`);
-            const customNameField = requirementCard.querySelector('.custom-name-field');
-            const customNameInput = requirementCard.querySelector(`input[name="new_doc_custom_name_${requirementCounter}"]`);
-            
-            typeSelect.addEventListener('change', function() {
-                if (this.value === 'other') {
-                    customNameField.style.display = 'block';
-                    customNameInput.required = true;
-                } else {
-                    customNameField.style.display = 'none';
-                    customNameInput.required = false;
-                    customNameInput.value = '';
-                }
-            });
-            
-            // Add cancel button listeners
-            const cancelBtns = requirementCard.querySelectorAll('.cancel-requirement, .cancel-requirement-btn');
-            cancelBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    requirementCard.classList.add('animate-fade-out');
-                    setTimeout(() => {
-                        requirementCard.remove();
-                    }, 300);
-                });
-            });
-            
-            // Add save button listener
-            const saveBtn = requirementCard.querySelector('.save-requirement-btn');
-            saveBtn.addEventListener('click', function() {
-                // Get form data
-                const docType = requirementCard.querySelector(`select[name="new_doc_type_${requirementCounter}"]`).value;
-                const customName = requirementCard.querySelector(`input[name="new_doc_custom_name_${requirementCounter}"]`).value;
-                const description = requirementCard.querySelector(`textarea[name="new_doc_description_${requirementCounter}"]`).value;
-                const formats = requirementCard.querySelector(`input[name="new_doc_formats_${requirementCounter}"]`).value;
-                const maxSize = requirementCard.querySelector(`input[name="new_doc_max_size_${requirementCounter}"]`).value;
-                const isRequired = requirementCard.querySelector(`#new_doc_required_${requirementCounter}`).checked;
-                
-                // Validate
-                if (!docType) {
-                    alert('Please select a document type');
-                    return;
-                }
-                
-                if (docType === 'other' && !customName) {
-                    alert('Please enter a custom document name');
-                    return;
-                }
-                
-                // Disable button and show loading
-                saveBtn.disabled = true;
-                saveBtn.innerHTML = `
-                    <svg class="animate-spin h-4 w-4 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Saving...
-                `;
-                
-                // Send AJAX request to create requirement
-                const formData = new FormData();
-                formData.append('doc_type', docType);
-                formData.append('custom_name', customName);
-                formData.append('description', description);
-                formData.append('formats', formats);
-                formData.append('max_size', maxSize);
-                formData.append('is_required', isRequired);
-                formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
-                
-                fetch('{% url "core:ajax_create_document_requirement" %}', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Hide empty state
-                        if (emptyState) {
-                            emptyState.style.display = 'none';
-                        }
-                        
-                        // Add to existing requirements list
-                        const newCheckbox = document.createElement('div');
-                        newCheckbox.className = 'flex items-start p-3 rounded-lg border border-green-300 bg-green-50 hover:border-green-400 transition-colors animate-slide-up';
-                        newCheckbox.innerHTML = `
-                            <div class="flex items-center h-5">
-                                <input type="checkbox" 
-                                       name="document_requirements" 
-                                       value="${data.requirement.id}" 
-                                       id="id_document_requirements_${data.requirement.id}" 
-                                       class="document-requirement-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" 
-                                       checked>
-                            </div>
-                            <div class="ml-3 flex-1">
-                                <label for="id_document_requirements_${data.requirement.id}" class="text-sm font-medium cursor-pointer" style="color: var(--primary-dark);">
-                                    ${data.requirement.display_name}
-                                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                        New
-                                    </span>
-                                </label>
-                                ${data.requirement.description ? `<p class="text-xs text-gray-500 mt-1">${data.requirement.description}</p>` : ''}
-                            </div>
-                        `;
-                        
-                        existingRequirements.appendChild(newCheckbox);
-                        
-                        // Remove the creation card
-                        requirementCard.classList.add('animate-fade-out');
-                        setTimeout(() => {
-                            requirementCard.remove();
-                        }, 300);
-                        
-                        // Show success message
-                        const successMsg = document.createElement('div');
-                        successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-slide-up z-50';
-                        successMsg.innerHTML = `
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                Requirement "${data.requirement.display_name}" created successfully!
-                            </div>
-                        `;
-                        document.body.appendChild(successMsg);
-                        setTimeout(() => {
-                            successMsg.classList.add('animate-fade-out');
-                            setTimeout(() => successMsg.remove(), 300);
-                        }, 3000);
-                    } else {
-                        alert('Error: ' + data.error);
-                        saveBtn.disabled = false;
-                        saveBtn.innerHTML = `
-                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Save & Add to List
-                        `;
-                    }
-                })
-                .catch(error => {
-                    alert('Error creating requirement: ' + error);
-                    saveBtn.disabled = false;
-                    saveBtn.innerHTML = `
-                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        Save & Add to List
-                    `;
-                });
-            });
-            
-            // Scroll to the new requirement
-            requirementCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        });
-        
-        // Add smooth focus transitions
-        inputs.forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.style.transform = 'translateY(-2px)';
-            });
-            
-            input.addEventListener('blur', function() {
-                this.parentElement.style.transform = 'translateY(0)';
-            });
-        });
-        
-        // Auto-save to localStorage (optional)
-        inputs.forEach(input => {
-            input.addEventListener('input', function() {
-                localStorage.setItem('scholarship_' + this.id, this.value);
-            });
-            
-            // Restore from localStorage
-            const saved = localStorage.getItem('scholarship_' + input.id);
-            if (saved && !input.value) {
-                input.value = saved;
-            }
-        });
-        
-        // Clear localStorage on successful submit
-        form.addEventListener('submit', function() {
-            if (form.checkValidity()) {
-                inputs.forEach(input => {
-                    localStorage.removeItem('scholarship_' + input.id);
-                });
-            }
-        });
     });
+    
+    // Progress tracking
+    function updateProgress() {
+        const required = ['id_title', 'id_award_amount', 'id_available_slots', 'id_application_deadline', 'id_description', 'id_eligibility_criteria'];
+        let filled = required.filter(id => document.getElementById(id)?.value.trim()).length;
+        const progress = (filled / required.length) * 100;
+        document.getElementById('progress-bar').style.width = progress + '%';
+        document.getElementById('progress-text').textContent = Math.round(progress) + '% Complete';
+    }
+    
+    inputs.forEach(input => input.addEventListener('input', updateProgress));
+    
+    // Character counters
+    function setupCounter(id, max) {
+        const field = document.getElementById(id);
+        const counter = document.getElementById(id.replace('id_', '') + '-counter');
+        if (field && counter) {
+            field.addEventListener('input', () => {
+                counter.textContent = `${field.value.length}/${max} characters`;
+            });
+        }
+    }
+    
+    setupCounter('id_title', 200);
+    setupCounter('id_description', 1000);
+    setupCounter('id_eligibility_criteria', 1000);
+    
+    // Scholarship requirements
+    let reqCounter = 0;
+    document.getElementById('addScholarshipRequirementBtn').addEventListener('click', function() {
+        reqCounter++;
+        const empty = document.getElementById('scholarshipRequirementsEmpty');
+        if (empty) empty.style.display = 'none';
+        
+        const item = document.createElement('div');
+        item.className = 'requirement-item animate-slide-up';
+        item.innerHTML = `
+            <input type="text" name="scholarship_requirement_${reqCounter}" 
+                   class="requirement-input" 
+                   placeholder="e.g., Minimum GPA of 3.0" required>
+            <button type="button" class="remove-btn">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        `;
+        
+        document.getElementById('scholarshipRequirementsList').appendChild(item);
+        
+        item.querySelector('.remove-btn').addEventListener('click', function() {
+            item.classList.add('animate-fade-out');
+            setTimeout(() => {
+                item.remove();
+                if (!document.querySelector('.requirement-item')) {
+                    document.getElementById('scholarshipRequirementsEmpty').style.display = 'block';
+                }
+            }, 300);
+        });
+        
+        item.querySelector('input').focus();
+    });
+    
+    updateProgress();
+});
 </script>
 {% endblock %}
-
-
-
-

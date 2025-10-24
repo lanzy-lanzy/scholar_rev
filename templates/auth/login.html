@@ -106,6 +106,21 @@
     .checkbox-custom {
         accent-color: var(--primary-dark);
     }
+    
+    /* Force black text with shadow in hero section for high contrast */
+    .hero-text-white {
+        color: #1a1a1a !important;
+        text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8), 
+                     -1px -1px 2px rgba(255, 255, 255, 0.6),
+                     0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    
+    .hero-text-light {
+        color: #2a2a2a !important;
+        text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.7),
+                     -1px -1px 2px rgba(255, 255, 255, 0.5),
+                     0 0 8px rgba(255, 255, 255, 0.4);
+    }
 </style>
 {% endblock %}
 
@@ -130,15 +145,15 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                     </svg>
                 </div>
-                <h2 class="text-4xl font-extrabold text-white mb-2">
+                <h2 class="text-4xl font-extrabold hero-text-white mb-2">
                     Welcome Back
                 </h2>
-                <p class="text-lg text-gray-200">
+                <p class="text-lg hero-text-light">
                     Sign in to your account
                 </p>
-                <p class="mt-4 text-sm text-gray-300">
+                <p class="mt-4 text-sm hero-text-light">
                     Don't have an account?
-                    <a href="{% url 'core:register' %}" class="font-medium text-white hover:text-neutral-light transition-colors duration-200 underline decoration-2 underline-offset-2">
+                    <a href="{% url 'core:register' %}" class="font-medium hero-text-white hover:opacity-80 transition-colors duration-200 underline decoration-2 underline-offset-2">
                         Create one here
                     </a>
                 </p>
