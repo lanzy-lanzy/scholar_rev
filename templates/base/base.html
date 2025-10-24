@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Scholarship Management System{% endblock %}</title>
+    
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.9"></script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <style>
+        /* Override Tailwind button resets */
+        button, .btn-primary, .btn-secondary, .btn-success, .btn-warning, .btn-danger, .btn-outline, .btn-custom, .btn-glass {
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+        }
+        /* Custom color palette (global) */
+        :root {
+            --brand-1: #0ABAB5; /* primary */
+            --brand-2: #56DFCF; /* secondary */
+            --brand-3: #ADEED9; /* light */
+            --brand-4: #FFEDF3; /* accent/pink */
+
+            /* legacy aliases for components that referenced older names */
+            --primary-dark: var(--brand-1);
+            --primary-medium: var(--brand-2);
+            --accent-warm: var(--brand-4);
+            --neutral-light: var(--brand-3);
+
+            /* Neutral text colors for improved contrast */
+            --text-default: #0b1720; /* darker body text */
+            --muted: #374151;       /* for .text-gray-600 replacements */
+            --muted-2: #4b5563;     /* for .text-gray-500 replacements */
+        }
+
+        /* Make body text darker by default for better readability */
+        body {
+            color: var(--text-default);
+        }
+
+        /* Increase contrast for common Tailwind gray text utilities used on light backgrounds */
+        .text-gray-600 { color: var(--muted) !important; }
+        .text-gray-700 { color: var(--text-default) !important; }
+        .text-gray-500 { color: var(--muted-2) !important; }
+        
+        /* Custom form styles */
+        .form-input {
+            /* Tailwind @apply is kept for dev pipeline; fallback colors use brand variables */
+            @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:border-blue-500;
+            --tw-ring-color: var(--brand-1);
+        }
+        
+        .form-select {
+            @apply w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:border-blue-500;
+            --tw-ring-color: var(--brand-1);
+        }
+        
+        /* Enhanced Button Styles with Higher Specificity */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            padding: 12px 24px !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.3s ease !important;
+            transform: translateY(0) !important;
+            border: none !important;
+            position: relative !important;
+            overflow: hidden !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        }
+        
+        .btn-primary::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -100% !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
+            transition: left 0.5s !important;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100% !important;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--primary-medium) 0%, var(--accent-warm) 100%) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            padding: 12px 24px !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.3s ease !important;
+            transform: translateY(0) !important;
+            border: none !important;
+            position: relative !important;
+            overflow: hidden !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        }
+        
+        .btn-secondary::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -100% !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
+            transition: left 0.5s !important;
+        }
+        
+        .btn-secondary:hover::before {
+            left: 100% !important;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--primary-medium) 0%, var(--primary-dark) 100%) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            padding: 12px 24px !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.3s ease !important;
+            transform: translateY(0) !important;
+            border: none !important;
+            position: relative !important;
+            overflow: hidden !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        }
+        
+        .btn-success::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -100% !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
+            transition: left 0.5s !important;
+        }
+        
+        .btn-success:hover::before {
+            left: 100% !important;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--accent-warm) 0%, var(--primary-medium) 100%) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            padding: 12px 24px !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.3s ease !important;
+            transform: translateY(0) !important;
+            border: none !important;
+            position: relative !important;
+            overflow: hidden !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        .btn-warning:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        }
+        
+        .btn-warning::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -100% !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
+            transition: left 0.5s !important;
+        }
+        
+        .btn-warning:hover::before {
+            left: 100% !important;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent-warm) 0%, var(--primary-dark) 100%) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            padding: 12px 24px !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.3s ease !important;
+            transform: translateY(0) !important;
+            border: none !important;
+            position: relative !important;
+            overflow: hidden !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        }
+        
+        .btn-danger::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -100% !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
+            transition: left 0.5s !important;
+        }
+        
+        .btn-danger:hover::before {
+            left: 100% !important;
+        }
+        
+        /* Outline Button Variants with Higher Specificity */
+        .btn-outline {
+            background: transparent !important;
+            border: 2px solid var(--brand-1) !important;
+            color: var(--brand-1) !important;
+            font-weight: 600 !important;
+            padding: 12px 24px !important;
+            border-radius: 12px !important;
+            transition: all 0.3s ease !important;
+            transform: translateY(0) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        .btn-outline:hover {
+            background: var(--brand-1) !important;
+            color: white !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        }
+        
+        .btn-outline-secondary {
+            background: transparent !important;
+            border: 2px solid var(--brand-4) !important;
+            color: var(--brand-4) !important;
+            font-weight: 600 !important;
+            padding: 12px 24px !important;
+            border-radius: 12px !important;
+            transition: all 0.3s ease !important;
+            transform: translateY(0) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        .btn-outline-secondary:hover {
+            background: var(--brand-4) !important;
+            color: white !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        }
+        
+        /* Size Variants with Proper Specificity */
+        .btn-sm {
+            padding: 8px 16px !important;
+            font-size: 14px !important;
+            border-radius: 8px !important;
+        }
+        
+        .btn-xs {
+            padding: 4px 12px !important;
+            font-size: 12px !important;
+            border-radius: 6px !important;
+        }
+        
+        .btn-lg {
+            padding: 16px 32px !important;
+            font-size: 18px !important;
+            border-radius: 16px !important;
+        }
+        
+        /* Custom Button for Applications with Higher Specificity */
+        .btn-custom {
+            background: linear-gradient(135deg, var(--brand-1) 0%, var(--brand-4) 100%) !important;
+            color: white !important;
+            font-weight: 700 !important;
+            padding: 12px 32px !important;
+            border-radius: 16px !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+            transition: all 0.3s ease !important;
+            transform: translateY(0) !important;
+            border: none !important;
+            position: relative !important;
+            overflow: hidden !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        .btn-custom:hover {
+            transform: translateY(-4px) !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+        }
+        
+        .btn-custom::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -100% !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent) !important;
+            transition: left 0.6s !important;
+        }
+        
+        .btn-custom:hover::before {
+            left: 100% !important;
+        }
+        
+        /* Glass Morphism Buttons with Higher Specificity */
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: var(--brand-1) !important;
+            font-weight: 600 !important;
+            padding: 12px 24px !important;
+            border-radius: 12px !important;
+            transition: all 0.3s ease !important;
+            transform: translateY(0) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        }
+        
+        /* Force button styles to override Tailwind classes */
+        a.btn-primary, button.btn-primary,
+        a.btn-secondary, button.btn-secondary,
+        a.btn-success, button.btn-success,
+        a.btn-warning, button.btn-warning,
+        a.btn-danger, button.btn-danger,
+        a.btn-outline, button.btn-outline,
+        a.btn-custom, button.btn-custom,
+        a.btn-glass, button.btn-glass {
+            text-decoration: none !important;
+            cursor: pointer !important;
+        }
+        
+        /* Ensure small buttons inherit main button styles */
+        .btn-sm.btn-primary {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%) !important;
+        }
+        
+        .btn-sm.btn-secondary {
+            background: linear-gradient(135deg, var(--primary-medium) 0%, var(--accent-warm) 100%) !important;
+        }
+        
+        .btn-sm.btn-success {
+            background: linear-gradient(135deg, var(--primary-medium) 0%, var(--primary-dark) 100%) !important;
+        }
+        
+        .btn-sm.btn-outline {
+            background: transparent !important;
+            border: 2px solid var(--primary-dark) !important;
+            color: var(--primary-dark) !important;
+        }
+        
+        .btn-sm.btn-outline:hover {
+            background: var(--primary-dark) !important;
+            color: white !important;
+        }
+        
+        /* Ensure extra small buttons inherit main button styles */
+        .btn-xs.btn-primary {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%) !important;
+        }
+        
+        .btn-xs.btn-secondary {
+            background: linear-gradient(135deg, var(--primary-medium) 0%, var(--accent-warm) 100%) !important;
+        }
+        
+        .btn-xs.btn-success {
+            background: linear-gradient(135deg, var(--primary-medium) 0%, var(--primary-dark) 100%) !important;
+        }
+        
+        .btn-xs.btn-outline {
+            background: transparent !important;
+            border: 2px solid var(--primary-dark) !important;
+            color: var(--primary-dark) !important;
+        }
+        
+        .btn-xs.btn-outline:hover {
+            background: var(--primary-dark) !important;
+            color: white !important;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            background: linear-gradient(180deg, var(--brand-1) 0%, var(--brand-2) 100%);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .sidebar-link {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .sidebar-link:hover::before {
+            left: 100%;
+        }
+        
+        .sidebar-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+        
+        .sidebar-link.active {
+            background: rgba(255, 255, 255, 0.18);
+            border-right: 4px solid var(--brand-4);
+        }
+        
+        .mobile-sidebar-overlay {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+        
+        /* Animation classes */
+        .htmx-indicator {
+            opacity: 0;
+            transition: opacity 200ms ease-in;
+        }
+        
+        .htmx-request .htmx-indicator {
+            opacity: 1;
+        }
+        
+        .htmx-request.htmx-indicator {
+            opacity: 1;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen" x-data="{ sidebarOpen: false }">
+    {% if user.is_authenticated and request.resolver_match.url_name not in 'landing_page,login,register' %}
+        <!-- Mobile Sidebar Overlay -->
+        <div x-show="sidebarOpen" 
+             x-transition:enter="transition-opacity ease-linear duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-linear duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-30 mobile-sidebar-overlay md:hidden"
+             @click="sidebarOpen = false"></div>
+    
+        <!-- Sidebar -->
+        <div class="fixed inset-y-0 left-0 z-40 w-64 sidebar md:translate-x-0"
+             :class="{ 'open': sidebarOpen }">
+            <div class="flex flex-col h-full">
+                <!-- Sidebar Header -->
+                <div class="flex items-center justify-between h-16 px-6 border-b border-white border-opacity-20">
+                    <div class="flex items-center">
+                        <span class="text-2xl">🎓</span>
+                        <span class="ml-2 text-lg font-bold text-white">Scholar</span>
+                    </div>
+                    <button @click="sidebarOpen = false" class="md:hidden text-white hover:text-gray-300">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- User Info -->
+                <div class="px-6 py-4 border-b border-white border-opacity-20">
+                    <div class="flex items-center">
+                        {% if user.profile.profile_picture %}
+                            <img src="{{ user.profile.profile_picture.url }}" 
+                                 alt="Profile Picture" 
+                                 class="w-10 h-10 rounded-full object-cover border-2 border-white border-opacity-30"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center text-white font-bold" style="display: none;">
+                                {{ user.first_name|first|default:user.username|first|upper }}
+                            </div>
+                        {% else %}
+                            <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center text-white font-bold">
+                                {{ user.first_name|first|default:user.username|first|upper }}
+                            </div>
+                        {% endif %}
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-white">{{ user.get_full_name|default:user.username }}</p>
+                            <p class="text-xs text-gray-300">
+                                {% if user.profile.is_admin or user.is_superuser %}
+                                    Administrator
+                                {% elif user.profile.is_osas %}
+                                    OSAS Staff
+                                {% elif user.profile.is_student %}
+                                    Student
+                                {% else %}
+                                    User
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Navigation Menu -->
+                <nav class="flex-1 px-4 py-6 overflow-y-auto">
+                    <!-- Student Navigation -->
+                    {% if user.profile.is_student %}
+                        <div class="space-y-2">
+                            <a href="{% url 'core:student_dashboard' %}" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-white rounded-lg group {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v4H8V5z"></path>
+                                </svg>
+                                Dashboard
+                            </a>
+                            
+                            <a href="{% url 'core:scholarships_list' %}" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-white rounded-lg group {% if request.resolver_match.url_name == 'scholarships_list' %}active{% endif %}">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                Browse Scholarships
+                            </a>
+                            
+                            <a href="{% url 'core:my_applications' %}" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-white rounded-lg group {% if request.resolver_match.url_name == 'my_applications' %}active{% endif %}">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                My Applications
+                            </a>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- OSAS Navigation -->
+                    {% if user.profile.is_osas %}
+                        <div class="space-y-2">
+                            <a href="{% url 'core:osas_dashboard' %}" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-white rounded-lg group {% if request.resolver_match.url_name == 'osas_dashboard' %}active{% endif %}">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                Dashboard
+                            </a>
+                            
+                            <a href="{% url 'core:review_queue' %}" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-white rounded-lg group {% if request.resolver_match.url_name == 'review_queue' %}active{% endif %}">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                                </svg>
+                                Review Queue
+                            </a>
+                            
+                            <a href="{% url 'core:view_applications' %}" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-white rounded-lg group {% if request.resolver_match.url_name == 'view_applications' %}active{% endif %}">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                All Applications
+                            </a>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Admin Navigation -->
+                    {% if user.profile.is_admin or user.is_superuser %}
+                        <div class="space-y-2">
+                            <a href="{% url 'core:admin_dashboard' %}" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-white rounded-lg group {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                Dashboard
+                            </a>
+                            
+                            <a href="{% url 'core:manage_scholarships' %}" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-white rounded-lg group {% if request.resolver_match.url_name == 'manage_scholarships' %}active{% endif %}">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                                Manage Scholarships
+                            </a>
+                            
+                            <a href="{% url 'core:view_applications' %}" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-white rounded-lg group {% if request.resolver_match.url_name == 'view_applications' %}active{% endif %}">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Review Applications
+                            </a>
+                            
+                            <a href="/admin/" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-white rounded-lg group" target="_blank">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                Django Admin
+                            </a>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Common Links -->
+                    <div class="mt-6 pt-6 border-t border-white border-opacity-20">
+                        <div class="space-y-2">
+                            <a href="{% url 'core:profile_update' %}" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-white rounded-lg group {% if request.resolver_match.url_name == 'profile_update' %}active{% endif %}">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                Profile Settings
+                            </a>
+                            
+                            <a href="{% url 'core:logout' %}" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-white rounded-lg group hover:bg-red-600">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                </svg>
+                                Sign Out
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    {% endif %}
+    
+    <!-- Top Navigation Bar -->
+    <nav class="{% if user.is_authenticated and request.resolver_match.url_name not in 'landing_page,login,register' %}md:ml-64{% endif %} bg-white shadow-lg border-b border-gray-100">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    {% if user.is_authenticated %}
+                        <!-- Mobile menu button -->
+                        <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <span class="sr-only">Open sidebar</span>
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    {% else %}
+                        <div class="flex-shrink-0">
+                            <h1 class="text-xl font-bold" style="color: var(--brand-1);">
+                                <a href="{% url 'core:landing_page' %}" class="transition-colors duration-200" style="color: var(--brand-1);" onmouseover="this.style.color='var(--brand-4)'" onmouseout="this.style.color='var(--brand-1)'>
+                                    🎓 Scholar Management
+                                </a>
+                            </h1>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <!-- Notification Bell -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="relative p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <span class="sr-only">View notifications</span>
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.67-3.67A5.002 5.002 0 0019 12V7a7 7 0 00-14 0v5c0 1.1.45 2.1 1.33 2.33L3 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white"></span>
+                            </button>
+                            
+                            <!-- Notification dropdown -->
+                            <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                                <div class="py-1">
+                                    <div class="px-4 py-2 text-sm text-gray-700 border-b">
+                                        <strong>Notifications</strong>
+                                    </div>
+                                    <div id="notifications-container" hx-get="{% url 'core:htmx_notifications' %}" hx-trigger="load">
+                                        <div class="px-4 py-2 text-sm text-gray-500">Loading...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- User Menu -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer">
+                                <span class="sr-only">Open user menu</span>
+                                {% if user.profile.profile_picture %}
+                                    <img src="{{ user.profile.profile_picture.url }}" 
+                                         alt="Profile Picture" 
+                                         class="h-8 w-8 rounded-full object-cover border border-gray-300 pointer-events-none"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium pointer-events-none" style="display: none;">
+                                        {{ user.first_name|first|default:user.username|first|upper }}
+                                    </div>
+                                {% else %}
+                                    <div class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium pointer-events-none">
+                                        {{ user.first_name|first|default:user.username|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <span class="ml-2 text-gray-700 pointer-events-none">{{ user.get_full_name|default:user.username }}</span>
+                                <svg class="ml-1 h-4 w-4 text-gray-400 pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                            
+                            <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                                <div class="py-1">
+                                    <a href="{% url 'core:dashboard_router' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
+                                    <a href="{% url 'core:profile_update' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                    <div class="border-t border-gray-100"></div>
+                                    <a href="{% url 'core:logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign out</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'core:login' %}" class="btn-outline btn-sm mr-2">Login</a>
+                        <a href="{% url 'core:register' %}" class="btn-primary btn-sm">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="{% if user.is_authenticated and request.resolver_match.url_name not in 'landing_page,login,register' %}md:ml-64{% endif %}">
+        <!-- Messages -->
+        {% if messages %}
+            <div class="px-4 sm:px-6 lg:px-8 pt-6" x-data="{ show: true }" x-show="show">
+                {% for message in messages %}
+                    <div class="{% if message.tags == 'error' %}bg-red-50 border border-red-200 text-red-700{% elif message.tags == 'warning' %}bg-yellow-50 border border-yellow-200 text-yellow-700{% elif message.tags == 'success' %}bg-green-50 border border-green-200 text-green-700{% else %}bg-blue-50 border border-blue-200 text-blue-700{% endif %} px-4 py-3 rounded-md mb-3 relative">
+                        <div class="flex">
+                            <div class="flex-1">
+                                <p class="text-sm font-medium">{{ message }}</p>
+                            </div>
+                            <button @click="show = false" class="ml-4 flex-shrink-0">
+                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <!-- Page Content -->
+        <div class="px-4 py-6 sm:px-6 lg:px-8">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+    
+    <!-- Loading Indicator -->
+    <div id="loading-indicator" class="htmx-indicator fixed top-4 right-4" style="background: linear-gradient(90deg, var(--brand-1), var(--brand-2)); color: white;" class="px-4 py-2 rounded-md shadow-lg z-50 {% if user.is_authenticated and request.resolver_match.url_name not in 'landing_page,login,register' %}md:mr-0{% endif %}">
+        <div class="flex items-center">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Loading...
+        </div>
+    </div>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

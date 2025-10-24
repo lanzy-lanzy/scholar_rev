@@ -1,0 +1,468 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Welcome - Scholarship Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Use global brand palette from base template (aliases kept for compatibility) */
+    :root {
+        --primary-dark: var(--brand-1);
+        --primary-medium: var(--brand-2);
+        --accent-warm: var(--brand-4);
+        --neutral-light: var(--brand-3);
+    }
+
+    /* Helper utility classes that map to the brand variables */
+    .bg-primary-dark { background-color: var(--primary-dark); }
+    .bg-primary-medium { background-color: var(--primary-medium); }
+    .bg-accent-warm { background-color: var(--accent-warm); }
+    .bg-neutral-light { background-color: var(--neutral-light); }
+
+    .text-primary-dark { color: var(--primary-dark); }
+    .text-primary-medium { color: var(--primary-medium); }
+    .text-accent-warm { color: var(--accent-warm); }
+    .text-neutral-light { color: var(--neutral-light); }
+
+    .border-primary-dark { border-color: var(--primary-dark); }
+    .border-accent-warm { border-color: var(--accent-warm); }
+    
+    /* Custom animations */
+    .fade-in-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+    
+    .fade-in-left {
+        animation: fadeInLeft 1s ease-out forwards;
+    }
+    
+    .fade-in-right {
+        animation: fadeInRight 1s ease-out forwards;
+    }
+    
+    .bounce-in {
+        animation: bounceIn 1.2s ease-out forwards;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes bounceIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.3);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        70% {
+            transform: scale(0.9);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .floating {
+        animation: floating 3s ease-in-out infinite;
+    }
+    
+    @keyframes floating {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    
+    .gradient-bg {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 50%, var(--accent-warm) 100%);
+    }
+    
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .btn-custom-primary {
+        background: linear-gradient(45deg, var(--primary-dark), var(--primary-medium));
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-custom-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(45deg, var(--primary-medium), var(--accent-warm));
+    }
+    
+    .btn-custom-secondary {
+        background: transparent;
+        color: var(--primary-dark);
+        border: 2px solid var(--primary-dark);
+        padding: 10px 22px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-custom-secondary:hover {
+        background: var(--primary-dark);
+        color: white;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="gradient-bg text-white relative overflow-hidden">
+    <!-- Background decorative elements -->
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-20 left-10 w-32 h-32 bg-white rounded-full floating"></div>
+        <div class="absolute top-40 right-20 w-20 h-20 bg-neutral-light rounded-full floating" style="animation-delay: 1s;"></div>
+        <div class="absolute bottom-20 left-1/4 w-16 h-16 bg-accent-warm rounded-full floating" style="animation-delay: 2s;"></div>
+    </div>
+    
+    <div class="relative z-10 container mx-auto px-6 py-20">
+        <div class="flex flex-col lg:flex-row items-center justify-between">
+            <!-- Left Content -->
+            <div class="lg:w-1/2 text-center lg:text-left fade-in-left">
+                <h1 class="text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                    Unlock Your 
+                    <span class="text-accent-warm">Future</span> 
+                    with Scholarships
+                </h1>
+                <p class="text-xl lg:text-2xl mb-8 text-gray-200 leading-relaxed">
+                    Discover opportunities, apply seamlessly, and transform your educational journey with our comprehensive scholarship management platform.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'core:register' %}" class="btn-custom-primary inline-flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                            </svg>
+                            Get Started
+                        </a>
+                        <a href="{% url 'core:login' %}" class="btn-custom-secondary">
+                            Sign In
+                        </a>
+                    {% else %}
+                        <a href="{% url 'core:dashboard_router' %}" class="btn-custom-primary inline-flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            Go to Dashboard
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <!-- Stats -->
+                <div class="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
+                    <div class="text-center lg:text-left">
+                        <div class="text-3xl font-bold text-accent-warm bounce-in">{{ total_scholarships|default:"50+" }}</div>
+                        <div class="text-gray-300">Active Scholarships</div>
+                    </div>
+                    <div class="text-center lg:text-left">
+                        <div class="text-3xl font-bold text-accent-warm bounce-in" style="animation-delay: 0.2s;">{{ total_applications|default:"1000+" }}</div>
+                        <div class="text-gray-300">Applications Processed</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Content - Interactive Visual -->
+            <div class="lg:w-1/2 mt-12 lg:mt-0 fade-in-right">
+                <div class="relative">
+                    <!-- Main illustration container -->
+                    <div class="w-full max-w-md mx-auto">
+                        <div class="relative bg-white bg-opacity-10 backdrop-blur-sm rounded-3xl p-8 border border-white border-opacity-20">
+                            <!-- Floating cards -->
+                            <div class="space-y-4">
+                                <div class="glass-effect rounded-lg p-4 floating hover-lift cursor-pointer" x-data="{ expanded: false }" @click="expanded = !expanded">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 bg-accent-warm rounded-full flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="text-white font-semibold">Merit Scholarship</div>
+                                                <div class="text-gray-300 text-sm">$5,000 Award</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-green-400 text-sm font-medium">Available</div>
+                                    </div>
+                                    <div x-show="expanded" x-transition class="mt-3 text-gray-300 text-sm">
+                                        Academic excellence program for outstanding students.
+                                    </div>
+                                </div>
+                                
+                                <div class="glass-effect rounded-lg p-4 floating hover-lift cursor-pointer" style="animation-delay: 0.5s;" x-data="{ expanded: false }" @click="expanded = !expanded">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 bg-primary-medium rounded-full flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="text-white font-semibold">STEM Excellence</div>
+                                                <div class="text-gray-300 text-sm">$8,000 Award</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-yellow-400 text-sm font-medium">3 Days Left</div>
+                                    </div>
+                                    <div x-show="expanded" x-transition class="mt-3 text-gray-300 text-sm">
+                                        Supporting innovation in Science, Technology, Engineering & Math.
+                                    </div>
+                                </div>
+                                
+                                <div class="glass-effect rounded-lg p-4 floating hover-lift cursor-pointer" style="animation-delay: 1s;" x-data="{ expanded: false }" @click="expanded = !expanded">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 bg-neutral-light rounded-full flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-primary-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="text-white font-semibold">Community Impact</div>
+                                                <div class="text-gray-300 text-sm">$3,000 Award</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-green-400 text-sm font-medium">Available</div>
+                                    </div>
+                                    <div x-show="expanded" x-transition class="mt-3 text-gray-300 text-sm">
+                                        Recognizing students making a difference in their communities.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="py-20 bg-white">
+    <div class="container mx-auto px-6">
+        <div class="text-center mb-16 fade-in-up">
+            <h2 class="text-4xl font-bold text-primary-dark mb-4">Why Choose Our Platform?</h2>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                Experience a seamless scholarship management system designed for students, administrators, and OSAS staff.
+            </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="text-center hover-lift fade-in-up" style="animation-delay: 0.1s;">
+                <div class="w-16 h-16 bg-primary-dark rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-primary-dark mb-2">Smart Search</h3>
+                <p class="text-gray-600">Find scholarships that match your profile with our intelligent search system.</p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="text-center hover-lift fade-in-up" style="animation-delay: 0.2s;">
+                <div class="w-16 h-16 bg-accent-warm rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-primary-dark mb-2">Easy Application</h3>
+                <p class="text-gray-600">Submit applications with just a few clicks and track your progress in real-time.</p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="text-center hover-lift fade-in-up" style="animation-delay: 0.3s;">
+                <div class="w-16 h-16 bg-primary-medium rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.67-3.67A5.002 5.002 0 0019 12V7a7 7 0 00-14 0v5c0 1.1.45 2.1 1.33 2.33L3 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-primary-dark mb-2">Real-time Updates</h3>
+                <p class="text-gray-600">Get instant notifications about application status and important deadlines.</p>
+            </div>
+            
+            <!-- Feature 4 -->
+            <div class="text-center hover-lift fade-in-up" style="animation-delay: 0.4s;">
+                <div class="w-16 h-16 bg-neutral-light border-2 border-primary-dark rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-primary-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-primary-dark mb-2">Analytics Dashboard</h3>
+                <p class="text-gray-600">Track your application performance with detailed analytics and insights.</p>
+            </div>
+            
+            <!-- Feature 5 -->
+            <div class="text-center hover-lift fade-in-up" style="animation-delay: 0.5s;">
+                <div class="w-16 h-16 bg-accent-warm rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-primary-dark mb-2">Secure & Private</h3>
+                <p class="text-gray-600">Your data is protected with enterprise-grade security and privacy measures.</p>
+            </div>
+            
+            <!-- Feature 6 -->
+            <div class="text-center hover-lift fade-in-up" style="animation-delay: 0.6s;">
+                <div class="w-16 h-16 bg-primary-dark rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-primary-dark mb-2">24/7 Support</h3>
+                <p class="text-gray-600">Get help whenever you need it with our dedicated support team.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action Section -->
+<div class="py-20 bg-neutral-light">
+    <div class="container mx-auto px-6 text-center">
+        <div class="max-w-4xl mx-auto fade-in-up">
+            <h2 class="text-4xl font-bold text-primary-dark mb-6">Ready to Transform Your Future?</h2>
+            <p class="text-xl text-gray-700 mb-8 leading-relaxed">
+                Join thousands of students who have already discovered their perfect scholarship opportunities. 
+                Start your journey today and unlock the door to your educational dreams.
+            </p>
+            
+            {% if not user.is_authenticated %}
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{% url 'core:register' %}" class="btn-custom-primary inline-flex items-center text-lg px-8 py-4">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                        Start Your Journey
+                    </a>
+                    <a href="{% url 'core:login' %}" class="btn-custom-secondary text-lg px-8 py-4">
+                        Already have an account?
+                    </a>
+                </div>
+            {% else %}
+                <a href="{% url 'core:dashboard_router' %}" class="btn-custom-primary inline-flex items-center text-lg px-8 py-4">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Go to Your Dashboard
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Section -->
+<div class="py-16 bg-white">
+    <div class="container mx-auto px-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div class="bounce-in" style="animation-delay: 0.1s;">
+                <div class="text-4xl font-bold text-primary-dark mb-2">{{ total_scholarships|default:"50+" }}</div>
+                <div class="text-gray-600">Active Scholarships</div>
+            </div>
+            <div class="bounce-in" style="animation-delay: 0.2s;">
+                <div class="text-4xl font-bold text-accent-warm mb-2">{{ total_applications|default:"1000+" }}</div>
+                <div class="text-gray-600">Applications Processed</div>
+            </div>
+            <div class="bounce-in" style="animation-delay: 0.3s;">
+                <div class="text-4xl font-bold text-primary-medium mb-2">95%</div>
+                <div class="text-gray-600">Satisfaction Rate</div>
+            </div>
+            <div class="bounce-in" style="animation-delay: 0.4s;">
+                <div class="text-4xl font-bold text-primary-dark mb-2">24/7</div>
+                <div class="text-gray-600">Support Available</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add scroll animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all animated elements
+    document.querySelectorAll('.fade-in-up, .fade-in-left, .fade-in-right, .bounce-in').forEach(el => {
+        el.style.animationPlayState = 'paused';
+        observer.observe(el);
+    });
+    
+    // Parallax effect for background elements
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const parallaxElements = document.querySelectorAll('.floating');
+        
+        parallaxElements.forEach(el => {
+            const speed = 0.1;
+            el.style.transform = `translateY(${scrolled * speed}px)`;
+        });
+    });
+});
+</script>
+{% endblock %}

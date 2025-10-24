@@ -1,0 +1,46 @@
+{% if scholarships %}
+    <div class="max-h-64 overflow-y-auto">
+        {% for scholarship in scholarships %}
+            <div class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-200 dark:border-gray-600 last:border-b-0">
+                <a href="{% url 'core:scholarship_detail' scholarship.id %}" class="block">
+                    <div class="flex items-start">
+                        <div class="flex-1">
+                            <h4 class="text-sm font-medium text-gray-900 dark:text-white">{{ scholarship.title }}</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Amount: ₱{{ scholarship.amount|floatformat:2 }} • 
+                                Deadline: {{ scholarship.application_deadline|date:"M d, Y" }}
+                            </p>
+                            <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
+                                {{ scholarship.description|truncatewords:15 }}
+                            </p>
+                        </div>
+                        <div class="ml-3 flex-shrink-0">
+                            {% if scholarship.available_slots_remaining > 0 %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                                    {{ scholarship.available_slots_remaining }} slots
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">
+                                    Full
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="px-4 py-2 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
+        <a href="{% url 'core:scholarships_list' %}?search={{ search_query }}" 
+           class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300">
+            View all results for "{{ search_query }}"
+        </a>
+    </div>
+{% else %}
+    <div class="px-4 py-6 text-center">
+        <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No scholarships found for "{{ search_query }}"</p>
+    </div>
+{% endif %}

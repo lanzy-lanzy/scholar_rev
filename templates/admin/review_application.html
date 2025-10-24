@@ -1,0 +1,462 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Review Application - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-slide-up {
+        animation: slideUp 0.3s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from { transform: translateY(10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .theme-gradient-bg {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 50%, var(--accent-warm) 100%);
+    }
+    
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--neutral-light);
+    }
+    
+    .breadcrumb-link {
+        color: var(--primary-dark);
+        transition: color 0.2s ease;
+    }
+    
+    .breadcrumb-link:hover {
+        color: var(--accent-warm);
+    }
+    
+    .theme-header-icon {
+        background: linear-gradient(135deg, var(--primary-dark), var(--accent-warm));
+    }
+    
+    .status-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .status-pending {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+    
+    .status-approved {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+    
+    .status-rejected {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+    
+    .status-additional-info {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+    }
+    
+    .document-card {
+        background: linear-gradient(135deg, var(--neutral-light) 0%, rgba(220, 215, 201, 0.5) 100%);
+        border: 2px solid var(--neutral-light);
+        transition: all 0.3s ease;
+    }
+    
+    .document-card:hover {
+        border-color: var(--accent-warm);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(44, 57, 48, 0.1);
+    }
+    
+    .student-info-card {
+        background: linear-gradient(135deg, var(--neutral-light) 0%, rgba(220, 215, 201, 0.3) 100%);
+        border: 2px solid var(--neutral-light);
+    }
+    
+    .review-panel {
+        background: linear-gradient(135deg, rgba(44, 57, 48, 0.05) 0%, rgba(162, 123, 92, 0.05) 100%);
+        border: 2px solid var(--neutral-light);
+    }
+    
+    .info-row {
+        padding: 12px 0;
+        border-bottom: 1px solid var(--neutral-light);
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .section-title {
+        color: var(--primary-dark);
+        font-weight: 700;
+        border-bottom: 2px solid var(--neutral-light);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .content-box {
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid var(--neutral-light);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 8px;
+    }
+    
+    .form-input {
+        border-color: var(--neutral-light);
+        transition: all 0.3s ease;
+    }
+    
+    .form-input:focus {
+        border-color: var(--primary-dark);
+        box-shadow: 0 0 0 3px rgba(44, 57, 48, 0.1);
+    }
+    
+    .avatar-circle {
+        background: linear-gradient(135deg, var(--primary-dark), var(--accent-warm));
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen theme-gradient-bg py-8">
+    <div class="max-w-7xl mx-auto px-4">
+        <!-- Breadcrumb -->
+        <nav class="flex mb-6 animate-fade-in" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3 glass-effect rounded-lg px-6 py-3 shadow-lg">
+                <li class="inline-flex items-center">
+                    <a href="{% url 'core:admin_dashboard' %}" class="breadcrumb-link inline-flex items-center text-sm font-medium">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                        </svg>
+                        Admin Dashboard
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <a href="{% url 'core:view_applications' %}" class="breadcrumb-link ml-1 text-sm font-medium md:ml-2">Review Applications</a>
+                    </div>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Review Application</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="glass-effect rounded-xl mb-8 animate-fade-in shadow-xl">
+            <div class="px-8 py-10">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-4xl font-bold mb-3" style="color: var(--primary-dark);">Review Application</h1>
+                        <p class="text-lg" style="color: var(--accent-warm);">
+                            Reviewing application for {{ application.scholarship.title }} by {{ application.student.get_full_name|default:application.student.username }}
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="status-badge {% if application.status == 'pending' %}status-pending{% elif application.status == 'approved' %}status-approved{% elif application.status == 'rejected' %}status-rejected{% else %}status-additional-info{% endif %}">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            {{ application.get_status_display }}
+                        </span>
+                        <div class="theme-header-icon p-4 rounded-2xl shadow-lg">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Application Details -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Application Information -->
+                <div class="glass-effect rounded-xl shadow-lg animate-fade-in">
+                    <div class="p-8">
+                        <h3 class="section-title text-2xl">Application Details</h3>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-bold mb-3" style="color: var(--primary-dark);">Personal Statement</label>
+                                <div class="content-box">
+                                    <p style="color: var(--primary-dark); line-height: 1.6;" class="whitespace-pre-line">{{ application.personal_statement }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold mb-2" style="color: var(--primary-dark);">GPA</label>
+                                    <div class="content-box">
+                                        <p class="text-2xl font-bold" style="color: var(--accent-warm);">{{ application.gpa }}</p>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-bold mb-2" style="color: var(--primary-dark);">Submitted</label>
+                                    <div class="content-box">
+                                        <p class="font-semibold" style="color: var(--primary-dark);">{{ application.submitted_at|date:"M d, Y \a\t g:i A" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if application.additional_info %}
+                                <div>
+                                    <label class="block text-sm font-bold mb-3" style="color: var(--primary-dark);">Additional Information</label>
+                                    <div class="content-box">
+                                        <p style="color: var(--primary-dark); line-height: 1.6;" class="whitespace-pre-line">{{ application.additional_info }}</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Supporting Documents -->
+                <div class="glass-effect rounded-xl shadow-lg animate-fade-in">
+                    <div class="p-8">
+                        <h3 class="section-title text-2xl">Supporting Documents</h3>
+                        
+                        {% if application.supporting_documents %}
+                            <div class="document-card rounded-xl p-6 mb-6">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="p-3 rounded-xl" style="background: var(--accent-warm);">
+                                            <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-4">
+                                            <p class="text-lg font-bold" style="color: var(--primary-dark);">Supporting Documents</p>
+                                            <p class="text-sm" style="color: var(--accent-warm);">Primary application document</p>
+                                        </div>
+                                    </div>
+                                    <a href="{{ application.supporting_documents.url }}" target="_blank" class="btn-primary btn-sm">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                        View Document
+                                    </a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="document-card rounded-xl p-6 text-center">
+                                <svg class="mx-auto h-12 w-12 mb-4" style="color: var(--accent-warm);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <p style="color: var(--accent-warm);" class="font-medium">No supporting documents uploaded</p>
+                            </div>
+                        {% endif %}
+                        
+                        {% if application.documents.all %}
+                            <div class="mt-6">
+                                <h4 class="text-lg font-bold mb-4" style="color: var(--primary-dark);">Additional Documents</h4>
+                                <div class="space-y-3">
+                                    {% for document in application.documents.all %}
+                                        <div class="document-card rounded-xl p-4">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center">
+                                                    <div class="p-2 rounded-lg" style="background: var(--primary-dark);">
+                                                        <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div class="ml-3">
+                                                        <p class="font-bold" style="color: var(--primary-dark);">{{ document.name }}</p>
+                                                        <p class="text-sm" style="color: var(--accent-warm);">{{ document.file_size_human }} • Uploaded {{ document.uploaded_at|date:"M d, Y" }}</p>
+                                                    </div>
+                                                </div>
+                                                <a href="{{ document.file.url }}" target="_blank" class="btn-outline btn-xs">
+                                                    View
+                                                </a>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Review Panel -->
+            <div class="space-y-8">
+                <!-- Review Form -->
+                <div class="glass-effect rounded-xl shadow-lg animate-fade-in">
+                    <div class="p-8">
+                        <h3 class="section-title text-2xl">Review Application</h3>
+                        
+                        <form method="post" class="space-y-6">
+                            {% csrf_token %}
+                            
+                            <div>
+                                <label for="decision" class="block text-sm font-bold mb-3" style="color: var(--primary-dark);">Decision</label>
+                                <select id="decision" name="decision" class="form-input w-full px-4 py-3 border rounded-lg focus:ring-2 transition-all duration-200">
+                                    <option value="">Select a decision</option>
+                                    <option value="approved">Approve Application</option>
+                                    <option value="rejected">Reject Application</option>
+                                    <option value="additional_info_required">Request Additional Information</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="comments" class="block text-sm font-bold mb-3" style="color: var(--primary-dark);">Comments</label>
+                                <textarea id="comments" name="comments" rows="4" class="form-input w-full px-4 py-3 border rounded-lg focus:ring-2 transition-all duration-200 resize-y" placeholder="Add any comments for the student..."></textarea>
+                            </div>
+                            
+                            <div class="flex justify-end space-x-4 pt-4">
+                                <a href="{% url 'core:view_applications' %}" class="btn-outline px-6 py-3">
+                                    Cancel
+                                </a>
+                                <button type="submit" class="btn-primary px-8 py-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Submit Review
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Student Information -->
+                <div class="glass-effect rounded-xl shadow-lg animate-fade-in">
+                    <div class="p-8">
+                        <h3 class="section-title text-2xl">Student Information</h3>
+                        
+                        <div class="student-info-card rounded-xl p-6">
+                            <div class="flex items-center mb-6">
+                                {% if application.student.profile.profile_picture %}
+                                    <img src="{{ application.student.profile.profile_picture.url }}" alt="Profile Picture" class="h-16 w-16 rounded-full object-cover border-4 border-white shadow-lg">
+                                {% else %}
+                                    <div class="avatar-circle h-16 w-16 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                                        {{ application.student.first_name|first|default:application.student.username|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <div class="ml-4">
+                                    <h4 class="text-xl font-bold" style="color: var(--primary-dark);">{{ application.student.get_full_name|default:application.student.username }}</h4>
+                                    <p class="font-medium" style="color: var(--accent-warm);">{{ application.student.email }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-1">
+                                <div class="info-row flex justify-between">
+                                    <span style="color: var(--accent-warm);" class="font-medium">Student ID:</span>
+                                    <span class="font-bold" style="color: var(--primary-dark);">{{ application.student.profile.student_id|default:"N/A" }}</span>
+                                </div>
+                                <div class="info-row flex justify-between">
+                                    <span style="color: var(--accent-warm);" class="font-medium">Department:</span>
+                                    <span class="font-bold" style="color: var(--primary-dark);">{{ application.student.profile.department|default:"N/A" }}</span>
+                                </div>
+                                <div class="info-row flex justify-between">
+                                    <span style="color: var(--accent-warm);" class="font-medium">Year Level:</span>
+                                    <span class="font-bold" style="color: var(--primary-dark);">{{ application.student.profile.get_year_level_display|default:"N/A" }}</span>
+                                </div>
+                                <div class="info-row flex justify-between">
+                                    <span style="color: var(--accent-warm);" class="font-medium">Phone:</span>
+                                    <span class="font-bold" style="color: var(--primary-dark);">{{ application.student.profile.phone_number|default:"N/A" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add smooth animations on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all cards
+        document.querySelectorAll('.glass-effect').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+        
+        // Form validation
+        const form = document.querySelector('form');
+        const decisionSelect = document.getElementById('decision');
+        const commentsTextarea = document.getElementById('comments');
+        
+        form.addEventListener('submit', function(e) {
+            if (!decisionSelect.value) {
+                e.preventDefault();
+                decisionSelect.focus();
+                decisionSelect.style.borderColor = '#ef4444';
+                
+                // Show error message
+                let errorMsg = document.getElementById('decision-error');
+                if (!errorMsg) {
+                    errorMsg = document.createElement('p');
+                    errorMsg.id = 'decision-error';
+                    errorMsg.className = 'text-red-600 text-sm mt-1';
+                    errorMsg.textContent = 'Please select a decision';
+                    decisionSelect.parentNode.appendChild(errorMsg);
+                }
+            }
+        });
+        
+        // Remove error styling when user selects an option
+        decisionSelect.addEventListener('change', function() {
+            this.style.borderColor = '';
+            const errorMsg = document.getElementById('decision-error');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+        });
+        
+        // Auto-resize textarea
+        commentsTextarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    });
+</script>
+{% endblock %}

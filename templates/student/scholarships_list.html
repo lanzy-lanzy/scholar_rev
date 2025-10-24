@@ -1,0 +1,288 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Browse Scholarships - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Available Scholarships</h1>
+                    <p class="mt-1 text-sm text-gray-600">Discover scholarship opportunities that match your profile</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <a href="{% url 'core:student_dashboard' %}" class="btn-secondary">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <form method="GET" class="space-y-4" x-data="{ showFilters: false }">
+                <!-- Search Bar -->
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div class="flex-1">
+                        <label for="search" class="sr-only">Search scholarships</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            <input type="text" name="search" id="search" value="{{ search_query }}" 
+                                   class="form-input pl-10" placeholder="Search by title, description, or criteria...">
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button type="button" @click="showFilters = !showFilters" 
+                                class="btn-secondary flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                            </svg>
+                            Filters
+                        </button>
+                        <button type="submit" class="btn-primary">Search</button>
+                    </div>
+                </div>
+
+                <!-- Filters Panel -->
+                <div x-show="showFilters" x-transition class="border-t pt-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Department/Field</label>
+                            <select name="department" id="department" class="form-select">
+                                <option value="">All Departments</option>
+                                {% for keyword in department_keywords %}
+                                    <option value="{{ keyword }}" {% if department_filter == keyword %}selected{% endif %}>
+                                        {{ keyword|title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Summary -->
+    {% if page_obj %}
+        <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            Found {{ page_obj.paginator.count }} scholarship{{ page_obj.paginator.count|pluralize }} 
+                            {% if search_query or department_filter %}
+                                matching your search
+                            {% else %}
+                                available for application
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                {% if search_query or department_filter %}
+                    <a href="{% url 'core:scholarships_list' %}" class="text-sm text-blue-600 hover:text-blue-500">Clear filters</a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Scholarship Cards Grid -->
+    {% if page_obj %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for scholarship in page_obj %}
+                <div class="bg-white shadow rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200">
+                    <div class="p-6">
+                        <!-- Header -->
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                                    <a href="{% url 'core:scholarship_detail' scholarship.id %}" 
+                                       class="hover:text-blue-600 transition-colors">
+                                        {{ scholarship.title }}
+                                    </a>
+                                </h3>
+                            </div>
+                            <div class="flex-shrink-0 ml-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                    ${{ scholarship.award_amount|floatformat:0 }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <p class="text-sm text-gray-600 mb-4 line-clamp-3">
+                            {{ scholarship.description|truncatewords:25 }}
+                        </p>
+
+                        <!-- Stats -->
+                        <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                            <div class="flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                {{ scholarship.available_slots_remaining }}/{{ scholarship.available_slots }} slots
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                {{ scholarship.applications_count }} applications
+                            </div>
+                        </div>
+
+                        <!-- Deadline Info -->
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center text-sm text-gray-500">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Deadline: {{ scholarship.application_deadline|date:"M d, Y" }}
+                            </div>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                                       {% if scholarship.days_until_deadline > 14 %}bg-green-100 text-green-800{% elif scholarship.days_until_deadline > 7 %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {% if scholarship.days_until_deadline > 0 %}
+                                    {{ scholarship.days_until_deadline }} days left
+                                {% else %}
+                                    Closing soon!
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <!-- Action Button -->
+                        <div class="flex space-x-3">
+                            <a href="{% url 'core:scholarship_detail' scholarship.id %}" 
+                               class="flex-1 btn-primary text-center">
+                                View Details
+                            </a>
+                            {% if scholarship.id not in user_applications %}
+                                <a href="{% url 'core:scholarship_detail' scholarship.id %}" 
+                                   class="btn-success">
+                                    Apply
+                                </a>
+                            {% else %}
+                                <span class="btn-sm" style="cursor: default; opacity: 0.6;">
+                                    Applied
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-lg shadow">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    {% if page_obj.has_previous %}
+                        <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if department_filter %}department={{ department_filter }}&{% endif %}page={{ page_obj.previous_page_number }}" 
+                           class="btn-sm btn-outline">
+                            Previous
+                        </a>
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                        <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if department_filter %}department={{ department_filter }}&{% endif %}page={{ page_obj.next_page_number }}" 
+                           class="btn-sm btn-outline">
+                            Next
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Showing
+                            <span class="font-medium">{{ page_obj.start_index }}</span>
+                            to
+                            <span class="font-medium">{{ page_obj.end_index }}</span>
+                            of
+                            <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                            results
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            {% if page_obj.has_previous %}
+                                <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if department_filter %}department={{ department_filter }}&{% endif %}page={{ page_obj.previous_page_number }}" 
+                                   class="btn-sm btn-outline">
+                                    <span class="sr-only">Previous</span>
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </a>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
+                                        {{ num }}
+                                    </span>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if department_filter %}department={{ department_filter }}&{% endif %}page={{ num }}" 
+                                       class="btn-sm btn-outline">
+                                        {{ num }}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                                <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if department_filter %}department={{ department_filter }}&{% endif %}page={{ page_obj.next_page_number }}" 
+                                   class="btn-sm btn-outline">
+                                    <span class="sr-only">Next</span>
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </a>
+                            {% endif %}
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- No Results -->
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No scholarships found</h3>
+            <p class="mt-1 text-sm text-gray-500">
+                {% if search_query or department_filter %}
+                    Try adjusting your search criteria or browse all available scholarships.
+                {% else %}
+                    There are currently no scholarships available for application.
+                {% endif %}
+            </p>
+            {% if search_query or department_filter %}
+                <div class="mt-6">
+                    <a href="{% url 'core:scholarships_list' %}" class="btn-primary">View All Scholarships</a>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+{% endblock %}

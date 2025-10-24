@@ -1,0 +1,622 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Apply for Scholarship - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-field {
+        transition: all 0.3s ease;
+    }
+    
+    .form-field:focus-within {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(44, 57, 48, 0.1);
+    }
+    
+    .floating-label {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: white;
+        padding: 0 6px;
+        color: var(--accent-warm);
+        transition: all 0.3s ease;
+        pointer-events: none;
+        z-index: 10;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+    
+    .form-input:focus + .floating-label,
+    .form-input:not(:placeholder-shown) + .floating-label {
+        top: -8px;
+        font-size: 0.75rem;
+        color: var(--primary-dark);
+        font-weight: 600;
+    }
+    
+    .form-input {
+        padding: 16px 16px 8px 16px;
+        border-color: var(--neutral-light);
+        min-height: 56px;
+    }
+    
+    .form-input:focus {
+        border-color: var(--primary-dark);
+        box-shadow: 0 0 0 3px rgba(44, 57, 48, 0.1);
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-slide-up {
+        animation: slideUp 0.3s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from { transform: translateY(10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .theme-gradient-bg {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 50%, var(--accent-warm) 100%);
+    }
+    
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--neutral-light);
+    }
+    
+    .breadcrumb-link {
+        color: var(--primary-dark);
+        transition: color 0.2s ease;
+    }
+    
+    .breadcrumb-link:hover {
+        color: var(--accent-warm);
+    }
+    
+    .theme-header-icon {
+        background: linear-gradient(135deg, var(--primary-dark), var(--accent-warm));
+    }
+    
+    .form-section-title {
+        color: var(--primary-dark);
+        font-weight: 700;
+        border-bottom: 2px solid var(--neutral-light);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .document-upload-card {
+        background: linear-gradient(135deg, var(--neutral-light) 0%, rgba(220, 215, 201, 0.5) 100%);
+        border: 2px solid var(--neutral-light);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .document-upload-card:hover {
+        border-color: var(--accent-warm);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(44, 57, 48, 0.1);
+    }
+    
+    .document-upload-card.required {
+        border-left: 4px solid #ef4444;
+    }
+    
+    .document-upload-card.optional {
+        border-left: 4px solid #10b981;
+    }
+    
+    .file-drop-zone {
+        border: 2px dashed var(--neutral-light);
+        transition: all 0.3s ease;
+        position: relative;
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background-color: rgba(255, 255, 255, 0.7);
+        overflow: hidden;
+    }
+    
+    .file-drop-zone:hover {
+        border-color: var(--accent-warm);
+        background: rgba(162, 123, 92, 0.1);
+    }
+    
+    .file-drop-zone.dragover {
+        border-color: var(--primary-dark);
+        background: rgba(44, 57, 48, 0.15);
+        transform: scale(1.02);
+    }
+    
+    .file-drop-zone.has-file {
+        border-color: #10b981;
+        background: rgba(16, 185, 129, 0.1);
+    }
+    
+    /* File input styling - make it cover the entire drop zone */
+    .file-drop-zone input[type="file"] {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        opacity: 0 !important;
+        cursor: pointer !important;
+        z-index: 999 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        background: transparent !important;
+    }
+    
+    .file-upload-content,
+    .file-selected-content {
+        pointer-events: none;
+        z-index: 1;
+        text-align: center;
+        width: 100%;
+    }
+    
+    .file-upload-content button,
+    .file-selected-content button {
+        pointer-events: auto;
+        cursor: pointer;
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    .progress-bar {
+        height: 6px;
+        background: linear-gradient(90deg, var(--primary-dark) 0%, var(--accent-warm) 100%);
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+    
+    .progress-container {
+        background: var(--neutral-light);
+    }
+    
+    .error-message {
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Custom template filter for accessing dynamic form fields -->
+{% load custom_filters %}
+
+<div class="min-h-screen theme-gradient-bg py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <!-- Breadcrumb -->
+        <nav class="flex mb-6 animate-fade-in" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3 glass-effect rounded-lg px-6 py-3 shadow-lg">
+                <li class="inline-flex items-center">
+                    <a href="{% url 'core:student_dashboard' %}" class="breadcrumb-link inline-flex items-center text-sm font-medium">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <a href="{% url 'core:scholarships_list' %}" class="breadcrumb-link ml-1 text-sm font-medium md:ml-2">Scholarships</a>
+                    </div>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Apply</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Progress Indicator -->
+        <div class="glass-effect rounded-xl p-6 mb-6 animate-fade-in shadow-lg">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold" style="color: var(--primary-dark);">Application Progress</h2>
+                <span id="progress-text" class="text-sm font-semibold" style="color: var(--accent-warm);">0% Complete</span>
+            </div>
+            <div class="w-full progress-container rounded-full h-3">
+                <div id="progress-bar" class="progress-bar w-0 rounded-full"></div>
+            </div>
+        </div>
+
+        <!-- Page Header -->
+        <div class="glass-effect rounded-xl mb-8 animate-fade-in shadow-xl">
+            <div class="px-8 py-10">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-4xl font-bold mb-3" style="color: var(--primary-dark);">Apply for Scholarship</h1>
+                        <p class="text-lg mb-2" style="color: var(--accent-warm);">{{ scholarship.title }}</p>
+                        <p class="text-sm" style="color: var(--primary-dark);">Award Amount: <span class="font-bold">₱{{ scholarship.award_amount|floatformat:2 }}</span></p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="theme-header-icon p-5 rounded-2xl shadow-lg">
+                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="glass-effect rounded-xl shadow-2xl animate-fade-in">
+            <form method="post" enctype="multipart/form-data" class="p-8" id="applicationForm">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors or form.errors %}
+                    <div class="mb-8 rounded-xl bg-red-50 p-6 border-l-4 border-red-400 animate-slide-up">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-6 w-6 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">There were errors with your submission:</h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <ul class="list-disc pl-5 space-y-1">
+                                        {% for error in form.non_field_errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                        {% if form.errors %}
+                                            {% for field, field_errors in form.errors.items %}
+                                                {% if field != 'non_field_errors' %}
+                                                    {% for error in field_errors %}
+                                                        <li>{{ field }}: {{ error }}</li>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Basic Information Section -->
+                <div class="mb-10">
+                    <h3 class="form-section-title text-xl">Application Information</h3>
+                    
+                    <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                        <!-- Personal Statement -->
+                        <div class="lg:col-span-2">
+                            <div class="form-field relative">
+                                <label for="{{ form.personal_statement.id_for_label }}" class="block text-sm font-bold mb-3" style="color: var(--primary-dark);">
+                                    Personal Statement *
+                                </label>
+                                {{ form.personal_statement }}
+                                {% if form.personal_statement.errors %}
+                                    <p class="mt-2 text-sm text-red-600 animate-slide-up">{{ form.personal_statement.errors.0 }}</p>
+                                {% endif %}
+                                <div id="statement-counter" class="character-counter text-xs mt-2" style="color: var(--accent-warm);"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- GPA -->
+                        <div>
+                            <div class="form-field relative">
+                                {{ form.gpa }}
+                                <label for="{{ form.gpa.id_for_label }}" class="floating-label">
+                                    GPA (0.0 - 4.0) *
+                                </label>
+                                {% if form.gpa.errors %}
+                                    <p class="mt-2 text-sm text-red-600 animate-slide-up">{{ form.gpa.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Additional Info -->
+                        <div>
+                            <div class="form-field relative">
+                                <label for="{{ form.additional_info.id_for_label }}" class="block text-sm font-bold mb-3" style="color: var(--primary-dark);">
+                                    Additional Information
+                                </label>
+                                {{ form.additional_info }}
+                                {% if form.additional_info.errors %}
+                                    <p class="mt-2 text-sm text-red-600 animate-slide-up">{{ form.additional_info.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Document Requirements Section -->
+                {% if scholarship.document_requirements.all %}
+                <div class="mb-10">
+                    <h3 class="form-section-title text-xl">Required Documents</h3>
+                    
+                    <div class="grid grid-cols-1 gap-6">
+                        {% for requirement in scholarship.document_requirements.all %}
+                            {% with field_name=requirement.id|document_field_name %}
+                                <div class="document-upload-card {% if requirement.is_required %}required{% else %}optional{% endif %} rounded-xl p-6">
+                                    <div class="flex items-start justify-between mb-4">
+                                        <div>
+                                            <h4 class="text-lg font-bold flex items-center" style="color: var(--primary-dark);">
+                                                {{ requirement.display_name }}
+                                                {% if requirement.is_required %}
+                                                    <span class="ml-2 text-red-500">*</span>
+                                                {% else %}
+                                                    <span class="ml-2 text-sm font-normal text-green-600">(Optional)</span>
+                                                {% endif %}
+                                            </h4>
+                                            {% if requirement.description %}
+                                                <p class="text-sm mt-1" style="color: var(--accent-warm);">{{ requirement.description }}</p>
+                                            {% endif %}
+                                            <p class="text-xs mt-2 text-gray-600">
+                                                Max size: {{ requirement.max_file_size_mb }}MB | 
+                                                Formats: {{ requirement.file_format_requirements }}
+                                            </p>
+                                        </div>
+                                        <div class="p-3 rounded-xl" style="background: var(--accent-warm);">
+                                            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="file-upload-section p-4 border-2 border-dashed border-gray-300 rounded-lg">
+                                        <label for="file_{{ requirement.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Choose {{ requirement.display_name }} file:
+                                        </label>
+                                        <input type="file" 
+                                               name="{{ field_name }}"
+                                               id="file_{{ requirement.id }}"
+                                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                               {% if requirement.is_required %}required{% endif %}>
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            Accepted formats: {{ requirement.file_format_requirements }} (Max: {{ requirement.max_file_size_mb }}MB)
+                                        </p>
+                                    </div>
+                                    
+                                    {% if form|get_item:field_name %}
+                                        {% if form|get_item:field_name.errors %}
+                                            <p class="mt-2 text-sm text-red-600 animate-slide-up">{{ form|get_item:field_name.errors.0 }}</p>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="mt-12 flex justify-end space-x-4">
+                    <a href="{% url 'core:scholarships_list' %}" class="btn-outline px-8 py-3">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn-primary px-10 py-3 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                        Submit Application
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('applicationForm');
+        const inputs = form.querySelectorAll('input, textarea, select');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        
+        // Add CSS classes to form elements
+        inputs.forEach(input => {
+            if (input.type !== 'file') {
+                input.classList.add('form-input', 'w-full', 'border', 'rounded-lg', 'transition-all', 'duration-200');
+                if (input.tagName !== 'TEXTAREA') {
+                    input.setAttribute('placeholder', ' ');
+                }
+                
+                // Style textareas
+                if (input.tagName === 'TEXTAREA') {
+                    input.style.fontFamily = 'inherit';
+                    input.style.padding = '16px';
+                    input.style.minHeight = '120px';
+                }
+            }
+        });
+        
+        // Character counter for personal statement
+        const statementField = document.getElementById('id_personal_statement');
+        const statementCounter = document.getElementById('statement-counter');
+        
+        if (statementField && statementCounter) {
+            function updateStatementCounter() {
+                const length = statementField.value.length;
+                statementCounter.textContent = `${length} characters`;
+            }
+            
+            statementField.addEventListener('input', updateStatementCounter);
+            updateStatementCounter();
+        }
+        
+        // Progress tracking
+        function updateProgress() {
+            const allFields = form.querySelectorAll('input[required], textarea[required], select[required]');
+            let filledFields = 0;
+            
+            allFields.forEach(field => {
+                if (field.type === 'file') {
+                    if (field.files && field.files.length > 0) {
+                        filledFields++;
+                    }
+                } else if (field.value.trim()) {
+                    filledFields++;
+                }
+            });
+            
+            const progress = allFields.length > 0 ? (filledFields / allFields.length) * 100 : 0;
+            progressBar.style.width = progress + '%';
+            progressText.textContent = Math.round(progress) + '% Complete';
+        }
+        
+        inputs.forEach(input => {
+            input.addEventListener('input', updateProgress);
+            input.addEventListener('change', updateProgress);
+        });
+        
+        // File upload handling
+        function initializeFileUploads() {
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            
+            fileInputs.forEach(input => {
+                input.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        // Update progress
+                        updateProgress();
+                    }
+                });
+            });
+        }
+            
+            // Clear previous errors
+            clearFileErrors(dropZone);
+            
+            // Validate file size
+            const maxSizeBytes = maxSizeMB * 1024 * 1024;
+            if (file.size > maxSizeBytes) {
+                showFileError(dropZone, `File size must be less than ${maxSizeMB}MB`);
+                fileInput.value = '';
+                return;
+            }
+            
+            // Validate file type
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const allowedExtensions = allowedFormats.toLowerCase().split(',').map(ext => ext.trim().replace('.', ''));
+            
+            if (allowedExtensions.length > 0 && !allowedExtensions.includes(fileExtension)) {
+                showFileError(dropZone, `Invalid file type. Allowed: ${allowedFormats}`);
+                fileInput.value = '';
+                return;
+            }
+            
+            // File is valid - update UI
+            updateFileUI(dropZone, file);
+            updateProgress();
+            
+            // Debug: Check if file is properly set
+            setTimeout(() => {
+                console.log('File input after selection:', fileInput.name, fileInput.files.length, 'files');
+                if (fileInput.files.length > 0) {
+                    console.log('First file:', fileInput.files[0].name);
+                }
+            }, 100);
+        }
+        
+        // Clear file errors
+        function clearFileErrors(dropZone) {
+            dropZone.classList.remove('border-red-500');
+            const errorMsg = dropZone.parentNode.querySelector('.file-error-message');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+        }
+        
+        // Show file error
+        function showFileError(dropZone, message) {
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'file-error-message text-sm text-red-600 mt-2';
+            errorMsg.textContent = message;
+            dropZone.parentNode.appendChild(errorMsg);
+        }
+        
+        // Update file UI when file is selected
+        function updateFileUI(dropZone, file) {
+            console.log('Updating UI for file:', file.name);
+            dropZone.classList.add('has-file');
+            
+            const fileNameElement = dropZone.querySelector('.file-name');
+            const fileSizeElement = dropZone.querySelector('.file-size');
+            const uploadContent = dropZone.querySelector('.file-upload-content');
+            const selectedContent = dropZone.querySelector('.file-selected-content');
+            
+            if (fileNameElement) {
+                fileNameElement.textContent = file.name;
+            }
+            
+            if (fileSizeElement) {
+                const sizeKB = (file.size / 1024).toFixed(1);
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                fileSizeElement.textContent = file.size > 1024 * 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
+            }
+            
+            if (uploadContent && selectedContent) {
+                uploadContent.classList.add('hidden');
+                selectedContent.classList.remove('hidden');
+            }
+        }
+        
+        // Reset file UI when no file is selected
+        function resetFileUI(dropZone) {
+            console.log('Resetting UI');
+            dropZone.classList.remove('has-file');
+            
+            const uploadContent = dropZone.querySelector('.file-upload-content');
+            const selectedContent = dropZone.querySelector('.file-selected-content');
+            
+            if (uploadContent && selectedContent) {
+                uploadContent.classList.remove('hidden');
+                selectedContent.classList.add('hidden');
+            }
+        }
+        
+        // Initialize file uploads
+        initializeFileUploads();
+        
+        // Initialize progress
+        updateProgress();
+        
+        // Add smooth focus transitions
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                if (this.parentElement.classList.contains('form-field')) {
+                    this.parentElement.style.transform = 'translateY(-2px)';
+                }
+            });
+            
+            input.addEventListener('blur', function() {
+                if (this.parentElement.classList.contains('form-field')) {
+                    this.parentElement.style.transform = 'translateY(0)';
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}

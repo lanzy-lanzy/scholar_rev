@@ -1,0 +1,509 @@
+{% extends 'base/base.html' %}
+
+{% block title %}View Applications - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .app-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--accent-warm);
+    }
+    
+    .app-card:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        transform: translateY(-2px);
+    }
+    
+    .page-header {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .filter-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+    }
+    
+    .tab-link {
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border-bottom: 3px solid transparent;
+        color: #6B7280;
+    }
+    
+    .tab-link:hover {
+        color: var(--accent-warm);
+        border-bottom-color: var(--accent-warm);
+    }
+    
+    .tab-link.active {
+        color: var(--primary-dark);
+        border-bottom-color: var(--accent-warm);
+        background: linear-gradient(to bottom, transparent, rgba(162, 123, 92, 0.05));
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.375rem 0.875rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .badge-pending {
+        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+        color: #92400E;
+    }
+    
+    .badge-under-review {
+        background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+        color: #1E40AF;
+    }
+    
+    .badge-approved {
+        background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+        color: #065F46;
+    }
+    
+    .badge-rejected {
+        background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+        color: #991B1B;
+    }
+    
+    .count-badge {
+        background: var(--neutral-light);
+        color: var(--primary-dark);
+        padding: 0.25rem 0.625rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-left: 0.5rem;
+    }
+    
+    .tab-link.active .count-badge {
+        background: var(--accent-warm);
+        color: white;
+    }
+    
+    /* View Toggle Styles */
+    .view-toggle {
+        display: inline-flex;
+        background: white;
+        border-radius: 8px;
+        padding: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .view-toggle-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+    }
+    
+    .view-toggle-btn.active {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
+        color: white;
+    }
+    
+    .view-toggle-btn:not(.active) {
+        color: var(--primary-medium);
+    }
+    
+    .view-toggle-btn:not(.active):hover {
+        color: var(--primary-dark);
+        background: var(--neutral-light);
+    }
+    
+    /* List View Styles */
+    .list-view-item {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--accent-warm);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+    
+    .list-view-item:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transform: translateX(4px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6" style="background: linear-gradient(to bottom, #f9fafb 0%, var(--neutral-light) 100%); min-height: 100vh; padding: 2rem 0;">
+    <!-- Breadcrumb -->
+    <nav class="flex" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'core:admin_dashboard' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                    </svg>
+                    Admin Dashboard
+                </a>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">View Applications</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold">View Applications</h1>
+                <p class="mt-2 text-sm opacity-90">Review and manage scholarship applications</p>
+            </div>
+            <div>
+                <svg class="w-16 h-16 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="bg-white shadow-lg rounded-2xl overflow-hidden">
+        <div class="border-b-2" style="border-color: var(--neutral-light);">
+            <nav class="flex -mb-px overflow-x-auto">
+                <a href="?status=all" class="tab-link {% if status_filter == 'all' or not status_filter %}active{% endif %}">
+                    All Applications
+                    <span class="count-badge">{{ status_counts.all }}</span>
+                </a>
+                <a href="?status=pending" class="tab-link {% if status_filter == 'pending' %}active{% endif %}">
+                    Pending
+                    <span class="count-badge">{{ status_counts.pending }}</span>
+                </a>
+                <a href="?status=under_review" class="tab-link {% if status_filter == 'under_review' %}active{% endif %}">
+                    Under Review
+                    <span class="count-badge">{{ status_counts.under_review }}</span>
+                </a>
+                <a href="?status=approved" class="tab-link {% if status_filter == 'approved' %}active{% endif %}">
+                    Approved
+                    <span class="count-badge">{{ status_counts.approved }}</span>
+                </a>
+                <a href="?status=rejected" class="tab-link {% if status_filter == 'rejected' %}active{% endif %}">
+                    Rejected
+                    <span class="count-badge">{{ status_counts.rejected }}</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Filter Dropdown -->
+    <div class="filter-card">
+        <div class="flex items-center justify-between mb-4">
+            <form method="get" class="flex flex-wrap gap-4 items-end">
+                <div class="flex-1 min-w-[250px]">
+                    <label for="scholarship" class="block text-sm font-bold mb-2" style="color: var(--accent-warm); text-transform: uppercase; letter-spacing: 0.05em;">Filter by Scholarship</label>
+                    <select name="scholarship" id="scholarship" 
+                            class="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all"
+                            style="border-color: var(--neutral-light); color: var(--primary-dark);"
+                            onfocus="this.style.borderColor='var(--accent-warm)'"
+                            onblur="this.style.borderColor='var(--neutral-light)'">
+                        <option value="">All Scholarships</option>
+                        {% for scholarship in scholarships_for_filter %}
+                            <option value="{{ scholarship.id }}" {% if scholarship_filter == scholarship.id|stringformat:"i" %}selected{% endif %}>
+                                {{ scholarship.title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex gap-2">
+                    <button type="submit" class="btn-primary px-6 py-3">
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                        </svg>
+                        Apply
+                    </button>
+                    <a href="{% url 'core:view_applications' %}" class="btn-outline px-6 py-3">Clear</a>
+                </div>
+            </form>
+            
+            <!-- View Toggle -->
+            <div class="view-toggle">
+                <button type="button" class="view-toggle-btn active" id="cardViewBtn" onclick="switchView('card')">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                    </svg>
+                    Cards
+                </button>
+                <button type="button" class="view-toggle-btn" id="listViewBtn" onclick="switchView('list')">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                    List
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applications List -->
+    <div class="space-y-4">
+        {% if page_obj %}
+            <!-- Card View -->
+            <div id="cardView">
+                {% for application in page_obj %}
+                    <div class="app-card">
+                        <div class="p-6">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <h3 class="text-xl font-bold" style="color: var(--primary-dark);">
+                                            {{ application.student.get_full_name|default:application.student.username }}
+                                        </h3>
+                                        {% if application.status == 'pending' %}
+                                            <span class="status-badge badge-pending">
+                                                <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2 animate-pulse"></span>
+                                                Pending
+                                            </span>
+                                        {% elif application.status == 'under_review' %}
+                                            <span class="status-badge badge-under-review">
+                                                <span class="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
+                                                Under Review
+                                            </span>
+                                        {% elif application.status == 'approved' %}
+                                            <span class="status-badge badge-approved">
+                                                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                                Approved
+                                            </span>
+                                        {% elif application.status == 'rejected' %}
+                                            <span class="status-badge badge-rejected">
+                                                <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                                                Rejected
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="text-sm font-semibold mb-3" style="color: var(--accent-warm);">
+                                        {{ application.scholarship.title }}
+                                    </p>
+                                    <div class="flex flex-wrap gap-4 text-sm" style="color: var(--primary-medium);">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                                            </svg>
+                                            <strong>GPA:</strong>&nbsp;{{ application.gpa }}
+                                        </span>
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                            {{ application.submitted_at|date:"M d, Y" }}
+                                        </span>
+                                        {% if application.reviewed_at %}
+                                            <span class="flex items-center">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                Reviewed: {{ application.reviewed_at|date:"M d, Y" }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    {% if application.reviewer_comments %}
+                                        <div class="mt-3 p-3 rounded-lg" style="background: var(--neutral-light);">
+                                            <p class="text-sm" style="color: var(--primary-dark);">
+                                                <span class="font-bold" style="color: var(--accent-warm);">Comments:</span> {{ application.reviewer_comments|truncatewords:20 }}
+                                            </p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="{% url 'core:review_application' application.id %}" class="btn-secondary px-6 py-3 inline-flex items-center">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                        Review
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- List View -->
+            <div id="listView" style="display: none;">
+                {% for application in page_obj %}
+                    <div class="list-view-item">
+                        <div class="flex-1 flex items-center gap-4">
+                            <div class="flex-1">
+                                <h4 class="text-sm font-bold" style="color: var(--primary-dark);">
+                                    {{ application.student.get_full_name|default:application.student.username }}
+                                </h4>
+                                <p class="text-xs" style="color: var(--accent-warm);">{{ application.scholarship.title }}</p>
+                            </div>
+                            <div class="text-xs" style="color: var(--primary-medium);">
+                                {% if application.gpa %}<strong>GPA:</strong> {{ application.gpa }}{% endif %}
+                            </div>
+                            <div class="text-xs" style="color: var(--primary-medium);">
+                                {{ application.submitted_at|date:"M d, Y" }}
+                            </div>
+                            <div>
+                                {% if application.status == 'pending' %}
+                                    <span class="status-badge badge-pending">
+                                        <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2 animate-pulse"></span>
+                                        Pending
+                                    </span>
+                                {% elif application.status == 'under_review' %}
+                                    <span class="status-badge badge-under-review">
+                                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
+                                        Under Review
+                                    </span>
+                                {% elif application.status == 'approved' %}
+                                    <span class="status-badge badge-approved">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                        Approved
+                                    </span>
+                                {% elif application.status == 'rejected' %}
+                                    <span class="status-badge badge-rejected">
+                                        <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                                        Rejected
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="{% url 'core:review_application' application.id %}" 
+                               class="btn-secondary px-4 py-1 text-xs">
+                                Review
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if scholarship_filter %}&scholarship={{ scholarship_filter }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Previous
+                            </a>
+                        {% endif %}
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if scholarship_filter %}&scholarship={{ scholarship_filter }}{% endif %}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Next
+                            </a>
+                        {% endif %}
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Showing
+                                <span class="font-medium">{{ page_obj.start_index }}</span>
+                                to
+                                <span class="font-medium">{{ page_obj.end_index }}</span>
+                                of
+                                <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                                results
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                {% if page_obj.has_previous %}
+                                    <a href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if scholarship_filter %}&scholarship={{ scholarship_filter }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">Previous</span>
+                                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </a>
+                                {% endif %}
+                                
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
+                                            {{ num }}
+                                        </span>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <a href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if scholarship_filter %}&scholarship={{ scholarship_filter }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            {{ num }}
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if page_obj.has_next %}
+                                    <a href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if scholarship_filter %}&scholarship={{ scholarship_filter }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">Next</span>
+                                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </a>
+                                {% endif %}
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No applications found</h3>
+                <p class="mt-1 text-sm text-gray-500">There are no scholarship applications matching your filters.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function switchView(viewType) {
+    const cardView = document.getElementById('cardView');
+    const listView = document.getElementById('listView');
+    const cardBtn = document.getElementById('cardViewBtn');
+    const listBtn = document.getElementById('listViewBtn');
+    
+    if (viewType === 'card') {
+        if (cardView) cardView.style.display = 'block';
+        if (listView) listView.style.display = 'none';
+        if (cardBtn) cardBtn.classList.add('active');
+        if (listBtn) listBtn.classList.remove('active');
+        localStorage.setItem('adminApplicationsView', 'card');
+    } else {
+        if (cardView) cardView.style.display = 'none';
+        if (listView) listView.style.display = 'block';
+        if (cardBtn) cardBtn.classList.remove('active');
+        if (listBtn) listBtn.classList.add('active');
+        localStorage.setItem('adminApplicationsView', 'list');
+    }
+}
+
+// Load saved view preference on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const savedView = localStorage.getItem('adminApplicationsView') || 'card';
+    switchView(savedView);
+});
+</script>
+{% endblock %}

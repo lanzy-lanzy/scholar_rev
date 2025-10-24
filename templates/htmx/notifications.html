@@ -1,0 +1,57 @@
+{% if notifications %}
+    {% for notification in notifications %}
+        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    {% if notification.notification_type == 'success' %}
+                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-green-100 dark:bg-green-900">
+                            <svg class="h-5 w-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                    {% elif notification.notification_type == 'warning' %}
+                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-yellow-100 dark:bg-yellow-900">
+                            <svg class="h-5 w-5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                            </svg>
+                        </div>
+                    {% elif notification.notification_type == 'error' %}
+                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-red-100 dark:bg-red-900">
+                            <svg class="h-5 w-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </div>
+                    {% else %}
+                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900">
+                            <svg class="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="ml-3 flex-1">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ notification.title }}</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ notification.message }}</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ notification.created_at|timesince }} ago</p>
+                </div>
+                <div class="ml-3 flex-shrink-0">
+                    <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                            hx-post="{% url 'core:htmx_mark_notification_read' notification.id %}"
+                            hx-target="closest div"
+                            hx-swap="outerHTML">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="px-4 py-6 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM12 17V7a1 1 0 011-1h5l-5-5v4.5a.5.5 0 00.5.5H17"/>
+        </svg>
+        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No new notifications</p>
+    </div>
+{% endif %}

@@ -1,0 +1,536 @@
+{% extends 'base/base.html' %}
+
+{% block title %}OSAS Dashboard - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border-top: 4px solid var(--accent-warm);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .page-header {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .action-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .action-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* View Toggle Styles */
+    .view-toggle {
+        display: inline-flex;
+        background: white;
+        border-radius: 8px;
+        padding: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .view-toggle-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+    }
+    
+    .view-toggle-btn.active {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
+        color: white;
+    }
+    
+    .view-toggle-btn:not(.active) {
+        color: var(--primary-medium);
+    }
+    
+    .view-toggle-btn:not(.active):hover {
+        color: var(--primary-dark);
+        background: var(--neutral-light);
+    }
+    
+    /* List View Styles */
+    .list-view-item {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--accent-warm);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+    
+    .list-view-item:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transform: translateX(4px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6" style="background: linear-gradient(to bottom, #f9fafb 0%, var(--neutral-light) 100%); padding: 2rem 0;">
+    <!-- Welcome Header -->
+    <div class="page-header">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold">
+                    OSAS Dashboard
+                </h1>
+                <p class="mt-2 text-sm opacity-90">
+                    Welcome, {{ user.get_full_name|default:user.username }} - Review and manage scholarship applications
+                </p>
+            </div>
+            <div class="flex-shrink-0">
+                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold" style="background: var(--accent-warm); color: white;">
+                    OSAS Staff
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+        <!-- Pending Applications -->
+        <div class="stat-card">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);">
+                        <svg class="w-6 h-6" style="color: #92400E;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <dt class="text-sm font-bold mb-1" style="color: var(--accent-warm); text-transform: uppercase; letter-spacing: 0.05em;">Pending Review</dt>
+                <dd class="text-3xl font-bold" style="color: var(--primary-dark);">{{ analytics.pending_applications }}</dd>
+            </div>
+        </div>
+
+        <!-- My Under Review -->
+        <div class="stat-card">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);">
+                        <svg class="w-6 h-6" style="color: #1E40AF;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                    </div>
+                </div>
+                <dt class="text-sm font-bold mb-1" style="color: var(--accent-warm); text-transform: uppercase; letter-spacing: 0.05em;">My Under Review</dt>
+                <dd class="text-3xl font-bold" style="color: var(--primary-dark);">{{ analytics.my_under_review }}</dd>
+            </div>
+        </div>
+
+        <!-- Total Reviews Completed -->
+        <div class="stat-card">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #E9D5FF 0%, #D8B4FE 100%);">
+                        <svg class="w-6 h-6" style="color: #7C3AED;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <dt class="text-sm font-bold mb-1" style="color: var(--accent-warm); text-transform: uppercase; letter-spacing: 0.05em;">Reviews Completed</dt>
+                <dd class="text-3xl font-bold" style="color: var(--primary-dark);">{{ analytics.total_reviews_completed }}</dd>
+            </div>
+        </div>
+
+        <!-- Approved Today -->
+        <div class="stat-card">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);">
+                        <svg class="w-6 h-6" style="color: #065F46;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                </div>
+                <dt class="text-sm font-bold mb-1" style="color: var(--accent-warm); text-transform: uppercase; letter-spacing: 0.05em;">Approved Today</dt>
+                <dd class="text-3xl font-bold" style="color: var(--primary-dark);">{{ analytics.approved_today }}</dd>
+            </div>
+        </div>
+
+        <!-- Rejected Today -->
+        <div class="stat-card">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);">
+                        <svg class="w-6 h-6" style="color: #991B1B;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </div>
+                </div>
+                <dt class="text-sm font-bold mb-1" style="color: var(--accent-warm); text-transform: uppercase; letter-spacing: 0.05em;">Rejected Today</dt>
+                <dd class="text-3xl font-bold" style="color: var(--primary-dark);">{{ analytics.rejected_today }}</dd>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="action-card">
+        <h3 class="text-lg font-bold mb-4" style="color: var(--primary-dark);">Quick Actions</h3>
+        <div class="flex flex-wrap gap-3">
+                <a href="{% url 'core:review_queue' %}" class="btn-primary">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    Review Queue
+                </a>
+                <a href="{% url 'core:review_queue' %}?status=under_review&reviewer=me" class="btn-secondary">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    My Reviews
+                </a>
+                <a href="{% url 'core:review_queue' %}?status=pending" class="bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Pending Applications
+                </a>
+                <a href="{% url 'core:review_queue' %}?status=approved" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Approved Applications
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Pending Applications Queue -->
+        <div class="action-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold" style="color: var(--primary-dark);">Priority Review Queue</h3>
+                <div class="flex items-center gap-2">
+                    <!-- View Toggle -->
+                    <div class="view-toggle">
+                        <button type="button" class="view-toggle-btn active" id="cardViewBtn" onclick="switchView('card', 'pending')">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                            </svg>
+                            Cards
+                        </button>
+                        <button type="button" class="view-toggle-btn" id="listViewBtn" onclick="switchView('list', 'pending')">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                            List
+                        </button>
+                    </div>
+                    <a href="{% url 'core:review_queue' %}" class="text-sm font-semibold hover:underline" style="color: var(--accent-warm);">View all</a>
+                </div>
+            </div>
+                
+            {% if pending_applications %}
+                <!-- Card View -->
+                <div id="pendingCardView" class="space-y-3">
+                    {% for application in pending_applications %}
+                        <div class="p-4 rounded-lg transition-all" style="background: var(--neutral-light); border-left: 4px solid var(--accent-warm);">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-bold" style="color: var(--primary-dark);">
+                                        {{ application.student.get_full_name|default:application.student.username }}
+                                    </h4>
+                                    <p class="text-xs font-semibold mt-1" style="color: var(--accent-warm);">{{ application.scholarship.title }}</p>
+                                    <p class="text-xs mt-1" style="color: var(--primary-medium);">
+                                        Submitted {{ application.submitted_at|timesince }} ago
+                                    </p>
+                                    <div class="flex items-center gap-3 mt-2 text-xs" style="color: var(--primary-medium);">
+                                        <span><strong>GPA:</strong> {{ application.gpa }}</span>
+                                        {% if application.student.profile.year_level %}
+                                            <span>{{ application.student.profile.get_year_level_display }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end gap-1 ml-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold" style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); color: #92400E;">
+                                        Pending
+                                    </span>
+                                    <span class="text-xs font-bold" style="color: var(--accent-warm);">₱{{ application.scholarship.award_amount|floatformat:0 }}</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex gap-2">
+                                <a href="{% url 'core:review_application' application.id %}" 
+                                   class="text-xs btn-secondary px-3 py-1">
+                                    Review Application
+                                </a>
+                                <a href="{% url 'core:assign_application' application.id %}" 
+                                   class="text-xs btn-success px-3 py-1">
+                                    Assign to Me
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- List View -->
+                <div id="pendingListView" class="space-y-2" style="display: none;">
+                    {% for application in pending_applications %}
+                        <div class="list-view-item">
+                            <div class="flex-1 flex items-center gap-4">
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-bold" style="color: var(--primary-dark);">
+                                        {{ application.student.get_full_name|default:application.student.username }}
+                                    </h4>
+                                    <p class="text-xs" style="color: var(--accent-warm);">{{ application.scholarship.title }}</p>
+                                </div>
+                                <div class="text-xs" style="color: var(--primary-medium);">
+                                    <strong>GPA:</strong> {{ application.gpa }}
+                                </div>
+                                <div class="text-xs" style="color: var(--primary-medium);">
+                                    {{ application.submitted_at|date:"M d, Y" }}
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a href="{% url 'core:review_application' application.id %}" 
+                                   class="btn-secondary px-3 py-1 text-xs">
+                                    Review
+                                </a>
+                                <a href="{% url 'core:assign_application' application.id %}" 
+                                   class="btn-success px-3 py-1 text-xs">
+                                    Assign
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <svg class="mx-auto h-16 w-16 opacity-30" style="color: var(--accent-warm);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-bold" style="color: var(--primary-dark);">No pending applications</h3>
+                    <p class="mt-1 text-sm" style="color: var(--primary-medium);">All applications have been reviewed or assigned.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- My Current Reviews -->
+        <div class="action-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold" style="color: var(--primary-dark);">My Current Reviews</h3>
+                <div class="flex items-center gap-2">
+                    <!-- View Toggle -->
+                    <div class="view-toggle">
+                        <button type="button" class="view-toggle-btn active" id="myReviewsCardViewBtn" onclick="switchView('card', 'myReviews')">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                            </svg>
+                            Cards
+                        </button>
+                        <button type="button" class="view-toggle-btn" id="myReviewsListViewBtn" onclick="switchView('list', 'myReviews')">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                            List
+                        </button>
+                    </div>
+                    <a href="{% url 'core:review_queue' %}?reviewer=me" class="text-sm font-semibold hover:underline" style="color: var(--accent-warm);">View all</a>
+                </div>
+            </div>
+                
+            {% if my_reviews %}
+                <!-- Card View -->
+                <div id="myReviewsCardView" class="space-y-3">
+                    {% for application in my_reviews %}
+                        <div class="p-4 rounded-lg transition-all" style="background: #DBEAFE; border-left: 4px solid #1E40AF;">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-bold" style="color: var(--primary-dark);">
+                                        {{ application.student.get_full_name|default:application.student.username }}
+                                    </h4>
+                                    <p class="text-xs font-semibold mt-1" style="color: var(--accent-warm);">{{ application.scholarship.title }}</p>
+                                    <p class="text-xs mt-1" style="color: var(--primary-medium);">
+                                        Under review since {{ application.reviewed_at|timesince }} ago
+                                    </p>
+                                    <div class="flex items-center gap-3 mt-2 text-xs" style="color: var(--primary-medium);">
+                                        <span><strong>GPA:</strong> {{ application.gpa }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end gap-1 ml-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold" style="background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%); color: #1E40AF;">
+                                        Under Review
+                                    </span>
+                                    <span class="text-xs font-bold" style="color: var(--accent-warm);">₱{{ application.scholarship.award_amount|floatformat:0 }}</span>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <a href="{% url 'core:review_application' application.id %}" 
+                                   class="text-xs btn-primary px-3 py-1.5">
+                                    Continue Review
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- List View -->
+                <div id="myReviewsListView" class="space-y-2" style="display: none;">
+                    {% for application in my_reviews %}
+                        <div class="list-view-item">
+                            <div class="flex-1 flex items-center gap-4">
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-bold" style="color: var(--primary-dark);">
+                                        {{ application.student.get_full_name|default:application.student.username }}
+                                    </h4>
+                                    <p class="text-xs" style="color: var(--accent-warm);">{{ application.scholarship.title }}</p>
+                                </div>
+                                <div class="text-xs" style="color: var(--primary-medium);">
+                                    <strong>GPA:</strong> {{ application.gpa }}
+                                </div>
+                                <div class="text-xs" style="color: var(--primary-medium);">
+                                    {{ application.reviewed_at|date:"M d, Y" }}
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a href="{% url 'core:review_application' application.id %}" 
+                                   class="btn-primary px-3 py-1 text-xs">
+                                    Continue
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <svg class="mx-auto h-16 w-16 opacity-30" style="color: var(--accent-warm);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-bold" style="color: var(--primary-dark);">No applications under review</h3>
+                    <p class="mt-1 text-sm" style="color: var(--primary-medium);">Pick up an application from the pending queue to start reviewing.</p>
+                    <div class="mt-4">
+                        <a href="{% url 'core:review_queue' %}?status=pending" class="btn-primary px-6 py-2">View Pending Applications</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Review Activity -->
+    {% if recent_reviews %}
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Recent Review Activity</h3>
+                <div class="space-y-3">
+                    {% for application in recent_reviews %}
+                        <div class="flex items-center space-x-4 p-3 rounded-lg {% if application.status == 'approved' %}bg-green-50 border border-green-200{% else %}bg-red-50 border border-red-200{% endif %}">
+                            <div class="flex-shrink-0">
+                                {% if application.status == 'approved' %}
+                                    <svg class="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                {% else %}
+                                    <svg class="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-medium {% if application.status == 'approved' %}text-green-900{% else %}text-red-900{% endif %}">
+                                    {{ application.get_status_display|title }} - {{ application.student.get_full_name|default:application.student.username }}
+                                </h4>
+                                <p class="text-sm {% if application.status == 'approved' %}text-green-700{% else %}text-red-700{% endif %}">
+                                    {{ application.scholarship.title }} • ${{ application.scholarship.award_amount|floatformat:0 }}
+                                </p>
+                                <p class="text-xs text-gray-600 mt-1">{{ application.reviewed_at|timesince }} ago</p>
+                                {% if application.reviewer_comments %}
+                                    <p class="text-xs text-gray-600 mt-1 italic">{{ application.reviewer_comments|truncatewords:15 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function switchView(viewType, section) {
+    // Handle pending applications section
+    if (section === 'pending') {
+        const cardView = document.getElementById('pendingCardView');
+        const listView = document.getElementById('pendingListView');
+        const cardBtn = document.getElementById('cardViewBtn');
+        const listBtn = document.getElementById('listViewBtn');
+        
+        if (viewType === 'card') {
+            if (cardView) cardView.style.display = 'block';
+            if (listView) listView.style.display = 'none';
+            if (cardBtn) cardBtn.classList.add('active');
+            if (listBtn) listBtn.classList.remove('active');
+            localStorage.setItem('osasPendingView', 'card');
+        } else {
+            if (cardView) cardView.style.display = 'none';
+            if (listView) listView.style.display = 'block';
+            if (cardBtn) cardBtn.classList.remove('active');
+            if (listBtn) listBtn.classList.add('active');
+            localStorage.setItem('osasPendingView', 'list');
+        }
+    }
+    
+    // Handle my reviews section
+    if (section === 'myReviews') {
+        const cardView = document.getElementById('myReviewsCardView');
+        const listView = document.getElementById('myReviewsListView');
+        const cardBtn = document.getElementById('myReviewsCardViewBtn');
+        const listBtn = document.getElementById('myReviewsListViewBtn');
+        
+        if (viewType === 'card') {
+            if (cardView) cardView.style.display = 'block';
+            if (listView) listView.style.display = 'none';
+            if (cardBtn) cardBtn.classList.add('active');
+            if (listBtn) listBtn.classList.remove('active');
+            localStorage.setItem('osasMyReviewsView', 'card');
+        } else {
+            if (cardView) cardView.style.display = 'none';
+            if (listView) listView.style.display = 'block';
+            if (cardBtn) cardBtn.classList.remove('active');
+            if (listBtn) listBtn.classList.add('active');
+            localStorage.setItem('osasMyReviewsView', 'list');
+        }
+    }
+}
+
+// Load saved view preferences on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Load pending applications view preference
+    const savedPendingView = localStorage.getItem('osasPendingView') || 'card';
+    switchView(savedPendingView, 'pending');
+    
+    // Load my reviews view preference
+    const savedMyReviewsView = localStorage.getItem('osasMyReviewsView') || 'card';
+    switchView(savedMyReviewsView, 'myReviews');
+});
+</script>
+{% endblock %}

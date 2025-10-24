@@ -1,0 +1,324 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Manage Document Requirements - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .theme-gradient-bg {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 50%, var(--accent-warm) 100%);
+    }
+    
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--neutral-light);
+    }
+    
+    .breadcrumb-link {
+        color: var(--primary-dark);
+        transition: color 0.2s ease;
+    }
+    
+    .breadcrumb-link:hover {
+        color: var(--accent-warm);
+    }
+    
+    .theme-header-icon {
+        background: linear-gradient(135deg, var(--primary-dark), var(--accent-warm));
+    }
+    
+    .requirement-card {
+        background: linear-gradient(135deg, var(--neutral-light) 0%, rgba(220, 215, 201, 0.5) 100%);
+        border: 2px solid var(--neutral-light);
+        transition: all 0.3s ease;
+    }
+    
+    .requirement-card:hover {
+        border-color: var(--accent-warm);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(44, 57, 48, 0.1);
+    }
+    
+    .requirement-card.required {
+        border-left: 4px solid #ef4444;
+    }
+    
+    .requirement-card.optional {
+        border-left: 4px solid #10b981;
+    }
+    
+    .form-section-title {
+        color: var(--primary-dark);
+        font-weight: 700;
+        border-bottom: 2px solid var(--neutral-light);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-input {
+        border-color: var(--neutral-light);
+        transition: all 0.3s ease;
+    }
+    
+    .form-input:focus {
+        border-color: var(--primary-dark);
+        box-shadow: 0 0 0 3px rgba(44, 57, 48, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen theme-gradient-bg py-8">
+    <div class="max-w-6xl mx-auto px-4">
+        <!-- Breadcrumb -->
+        <nav class="flex mb-6 animate-fade-in" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3 glass-effect rounded-lg px-6 py-3 shadow-lg">
+                <li class="inline-flex items-center">
+                    <a href="{% url 'core:admin_dashboard' %}" class="breadcrumb-link inline-flex items-center text-sm font-medium">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                        </svg>
+                        Admin Dashboard
+                    </a>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Document Requirements</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="glass-effect rounded-xl mb-8 animate-fade-in shadow-xl">
+            <div class="px-8 py-10">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-4xl font-bold mb-3" style="color: var(--primary-dark);">Document Requirements</h1>
+                        <p class="text-lg" style="color: var(--accent-warm);">Manage document requirements for scholarship applications</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="theme-header-icon p-5 rounded-2xl shadow-lg">
+                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Existing Requirements -->
+            <div class="lg:col-span-2">
+                <div class="glass-effect rounded-xl shadow-lg animate-fade-in">
+                    <div class="p-8">
+                        <h3 class="form-section-title text-2xl">Existing Requirements</h3>
+                        
+                        {% if requirements %}
+                            <div class="grid grid-cols-1 gap-4">
+                                {% for requirement in requirements %}
+                                    <div class="requirement-card {% if requirement.is_required %}required{% else %}optional{% endif %} rounded-xl p-6">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <h4 class="text-lg font-bold flex items-center" style="color: var(--primary-dark);">
+                                                    {{ requirement.display_name }}
+                                                    {% if requirement.is_required %}
+                                                        <span class="ml-2 text-sm font-normal text-red-600">(Required)</span>
+                                                    {% else %}
+                                                        <span class="ml-2 text-sm font-normal text-green-600">(Optional)</span>
+                                                    {% endif %}
+                                                </h4>
+                                                {% if requirement.description %}
+                                                    <p class="text-sm mt-2" style="color: var(--accent-warm);">{{ requirement.description }}</p>
+                                                {% endif %}
+                                                <div class="mt-3 flex flex-wrap gap-2 text-xs">
+                                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+                                                        Formats: {{ requirement.file_format_requirements }}
+                                                    </span>
+                                                    <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full">
+                                                        Max: {{ requirement.max_file_size_mb }}MB
+                                                    </span>
+                                                    <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full">
+                                                        Used in {{ requirement.scholarships.count }} scholarship{{ requirement.scholarships.count|pluralize }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="ml-4 flex space-x-2">
+                                                <button class="btn-outline btn-xs">Edit</button>
+                                                <button class="btn-danger btn-xs">Delete</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-12">
+                                <svg class="mx-auto h-16 w-16 mb-4" style="color: var(--accent-warm);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <h3 class="text-lg font-medium mb-2" style="color: var(--primary-dark);">No Document Requirements</h3>
+                                <p style="color: var(--accent-warm);">Create your first document requirement to get started.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Create New Requirement -->
+            <div>
+                <div class="glass-effect rounded-xl shadow-lg animate-fade-in">
+                    <div class="p-8">
+                        <h3 class="form-section-title text-2xl">Create New Requirement</h3>
+                        
+                        <form method="post" class="space-y-6">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                                <div class="rounded-xl bg-red-50 p-4 border-l-4 border-red-400">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3 class="text-sm font-medium text-red-800">Errors:</h3>
+                                            <div class="mt-2 text-sm text-red-700">
+                                                <ul class="list-disc pl-5 space-y-1">
+                                                    {% for error in form.non_field_errors %}
+                                                        <li>{{ error }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            <div>
+                                <label for="{{ form.name.id_for_label }}" class="block text-sm font-bold mb-2" style="color: var(--primary-dark);">
+                                    Document Type *
+                                </label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.custom_name.id_for_label }}" class="block text-sm font-bold mb-2" style="color: var(--primary-dark);">
+                                    Custom Name
+                                </label>
+                                {{ form.custom_name }}
+                                <p class="text-xs mt-1" style="color: var(--accent-warm);">Only required if "Other Document" is selected above</p>
+                                {% if form.custom_name.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.custom_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.description.id_for_label }}" class="block text-sm font-bold mb-2" style="color: var(--primary-dark);">
+                                    Description
+                                </label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.file_format_requirements.id_for_label }}" class="block text-sm font-bold mb-2" style="color: var(--primary-dark);">
+                                    File Formats *
+                                </label>
+                                {{ form.file_format_requirements }}
+                                {% if form.file_format_requirements.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.file_format_requirements.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.max_file_size_mb.id_for_label }}" class="block text-sm font-bold mb-2" style="color: var(--primary-dark);">
+                                    Max File Size (MB) *
+                                </label>
+                                {{ form.max_file_size_mb }}
+                                {% if form.max_file_size_mb.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.max_file_size_mb.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="flex items-center h-5">
+                                    {{ form.is_required }}
+                                </div>
+                                <div class="ml-3">
+                                    <label for="{{ form.is_required.id_for_label }}" class="text-sm font-bold cursor-pointer" style="color: var(--primary-dark);">
+                                        Required by Default
+                                    </label>
+                                    <p class="text-xs" style="color: var(--accent-warm);">This can be overridden per scholarship</p>
+                                </div>
+                            </div>
+                            
+                            <div class="pt-4">
+                                <button type="submit" class="btn-primary w-full flex items-center justify-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    Create Requirement
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add CSS classes to form elements
+        const inputs = document.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            if (input.type !== 'checkbox') {
+                input.classList.add('form-input', 'w-full', 'px-4', 'py-3', 'border', 'rounded-lg', 'transition-all', 'duration-200');
+            }
+            
+            if (input.tagName === 'TEXTAREA') {
+                input.style.minHeight = '80px';
+                input.style.resize = 'vertical';
+            }
+        });
+        
+        // Show/hide custom name field based on document type selection
+        const nameSelect = document.getElementById('id_name');
+        const customNameField = document.getElementById('id_custom_name').parentElement;
+        
+        function toggleCustomName() {
+            if (nameSelect.value === 'other') {
+                customNameField.style.display = 'block';
+                document.getElementById('id_custom_name').required = true;
+            } else {
+                customNameField.style.display = 'none';
+                document.getElementById('id_custom_name').required = false;
+                document.getElementById('id_custom_name').value = '';
+            }
+        }
+        
+        nameSelect.addEventListener('change', toggleCustomName);
+        toggleCustomName(); // Initial call
+    });
+</script>
+{% endblock %}
