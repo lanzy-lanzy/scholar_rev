@@ -5,6 +5,45 @@
 
 {% block extra_css %}
 <style>
+    /* Modern Table Styles */
+    .modern-table {
+        width: 100%;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    .modern-table thead {
+        background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
+        color: white;
+    }
+    
+    .modern-table th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .modern-table tbody tr {
+        border-bottom: 1px solid #e5e7eb;
+        transition: all 0.2s;
+    }
+    
+    .modern-table tbody tr:hover {
+        background: #f9fafb;
+        transform: scale(1.01);
+    }
+    
+    .modern-table td {
+        padding: 1rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Card Styles */
     .queue-card {
         background: white;
         border-radius: 16px;
@@ -136,6 +175,12 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                             </svg>
                             Cards
+                        </button>
+                        <button type="button" class="view-toggle-btn" id="tableViewBtn" onclick="switchView('table')">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                            </svg>
+                            Table
                         </button>
                         <button type="button" class="view-toggle-btn" id="listViewBtn" onclick="switchView('list')">
                             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -362,6 +407,70 @@
                 {% endfor %}
             </div>
 
+            <!-- Table View -->
+            <div id="tableView" class="p-4" style="display: none;">
+                <div class="modern-table-container" style="overflow-x: auto; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                    <table class="modern-table" style="width: 100%; background: white; border-collapse: separate; border-spacing: 0;">
+                        <thead style="background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%); color: white;">
+                            <tr>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; font-size: 0.875rem; text-transform: uppercase;">Student</th>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; font-size: 0.875rem; text-transform: uppercase;">Scholarship</th>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; font-size: 0.875rem; text-transform: uppercase;">GPA</th>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; font-size: 0.875rem; text-transform: uppercase;">Submitted</th>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; font-size: 0.875rem; text-transform: uppercase;">Status</th>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; font-size: 0.875rem; text-transform: uppercase;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for application in applications %}
+                            <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.2s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                <td style="padding: 1rem; font-size: 0.875rem;">
+                                    <div class="flex items-center">
+                                        <div style="width: 2.5rem; height: 2.5rem; border-radius: 9999px; background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 0.75rem;">
+                                            {{ application.student.first_name.0 }}{{ application.student.last_name.0 }}
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 600; color: #111827;">{{ application.student.get_full_name }}</div>
+                                            <div style="font-size: 0.75rem; color: #6b7280;">{{ application.student.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="padding: 1rem; font-size: 0.875rem;">
+                                    <div style="font-weight: 500; color: #111827;">{{ application.scholarship.title|truncatewords:5 }}</div>
+                                    <div style="font-size: 0.75rem; color: #6b7280;">${{ application.scholarship.award_amount|floatformat:0 }}</div>
+                                </td>
+                                <td style="padding: 1rem; font-size: 0.875rem;">
+                                    <span style="font-weight: 600; color: #0891b2;">{{ application.gpa }}</span>
+                                </td>
+                                <td style="padding: 1rem; font-size: 0.875rem;">
+                                    <div style="color: #111827;">{{ application.submitted_at|date:"M d, Y" }}</div>
+                                    <div style="font-size: 0.75rem; color: #6b7280;">{{ application.submitted_at|timesince }} ago</div>
+                                </td>
+                                <td style="padding: 1rem; font-size: 0.875rem;">
+                                    {% if application.status == 'pending' %}
+                                        <span class="status-badge badge-pending">Pending</span>
+                                    {% elif application.status == 'under_review' %}
+                                        <span class="status-badge badge-under-review">Under Review</span>
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 1rem; font-size: 0.875rem;">
+                                    <div class="flex gap-2">
+                                        {% if application.status == 'pending' %}
+                                            <form method="POST" action="{% url 'core:assign_application' application.id %}" class="inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn-success btn-xs">Assign</button>
+                                            </form>
+                                        {% endif %}
+                                        <a href="{% url 'core:review_application' application.id %}" class="btn-secondary btn-xs">Review</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Pagination -->
             {% if applications.has_other_pages %}
                 <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
@@ -421,22 +530,34 @@
 function switchView(viewType) {
     const cardView = document.getElementById('cardView');
     const listView = document.getElementById('listView');
+    const tableView = document.getElementById('tableView');
     const cardBtn = document.getElementById('cardViewBtn');
     const listBtn = document.getElementById('listViewBtn');
+    const tableBtn = document.getElementById('tableViewBtn');
     
+    // Hide all views
+    if (cardView) cardView.style.display = 'none';
+    if (listView) listView.style.display = 'none';
+    if (tableView) tableView.style.display = 'none';
+    
+    // Remove active class from all buttons
+    if (cardBtn) cardBtn.classList.remove('active');
+    if (listBtn) listBtn.classList.remove('active');
+    if (tableBtn) tableBtn.classList.remove('active');
+    
+    // Show selected view and activate button
     if (viewType === 'card') {
         if (cardView) cardView.style.display = 'block';
-        if (listView) listView.style.display = 'none';
         if (cardBtn) cardBtn.classList.add('active');
-        if (listBtn) listBtn.classList.remove('active');
-        localStorage.setItem('reviewQueueView', 'card');
+    } else if (viewType === 'table') {
+        if (tableView) tableView.style.display = 'block';
+        if (tableBtn) tableBtn.classList.add('active');
     } else {
-        if (cardView) cardView.style.display = 'none';
         if (listView) listView.style.display = 'block';
-        if (cardBtn) cardBtn.classList.remove('active');
         if (listBtn) listBtn.classList.add('active');
-        localStorage.setItem('reviewQueueView', 'list');
     }
+    
+    localStorage.setItem('reviewQueueView', viewType);
 }
 
 // Load saved view preference on page load

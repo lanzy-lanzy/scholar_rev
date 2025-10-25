@@ -24,10 +24,10 @@
         }
         /* Custom color palette (global) */
         :root {
-            --brand-1: #0ABAB5; /* primary */
-            --brand-2: #56DFCF; /* secondary */
+            --brand-1: #0891b2; /* primary - darker cyan for better contrast */
+            --brand-2: #14b8a6; /* secondary - darker teal */
             --brand-3: #ADEED9; /* light */
-            --brand-4: #FFEDF3; /* accent/pink */
+            --brand-4: #f472b6; /* accent/pink - darker for better contrast */
 
             /* legacy aliases for components that referenced older names */
             --primary-dark: var(--brand-1);
@@ -39,6 +39,14 @@
             --text-default: #0b1720; /* darker body text */
             --muted: #374151;       /* for .text-gray-600 replacements */
             --muted-2: #4b5563;     /* for .text-gray-500 replacements */
+            
+            /* Button specific colors for better contrast */
+            --btn-primary-from: #0e7490; /* darker cyan */
+            --btn-primary-to: #0891b2; /* medium cyan */
+            --btn-secondary-from: #0d9488; /* darker teal */
+            --btn-secondary-to: #14b8a6; /* medium teal */
+            --btn-success-from: #059669; /* green */
+            --btn-success-to: #10b981; /* lighter green */
         }
 
         /* Make body text darker by default for better readability */
@@ -65,13 +73,13 @@
         
         /* Enhanced Button Styles with Higher Specificity */
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%) !important;
+            background: linear-gradient(135deg, var(--btn-primary-from) 0%, var(--btn-primary-to) 100%) !important;
             color: white !important;
             font-weight: 600 !important;
-            padding: 12px 24px !important;
-            border-radius: 12px !important;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-            transition: all 0.3s ease !important;
+            padding: 10px 20px !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+            transition: all 0.2s ease !important;
             transform: translateY(0) !important;
             border: none !important;
             position: relative !important;
@@ -79,11 +87,13 @@
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
         }
         
         .btn-primary:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.08) !important;
+            background: linear-gradient(135deg, #0c6478 0%, #0e7490 100%) !important;
         }
         
         .btn-primary::before {
@@ -102,13 +112,13 @@
         }
         
         .btn-secondary {
-            background: linear-gradient(135deg, var(--primary-medium) 0%, var(--accent-warm) 100%) !important;
+            background: linear-gradient(135deg, var(--btn-secondary-from) 0%, var(--btn-secondary-to) 100%) !important;
             color: white !important;
             font-weight: 600 !important;
-            padding: 12px 24px !important;
-            border-radius: 12px !important;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-            transition: all 0.3s ease !important;
+            padding: 10px 20px !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+            transition: all 0.2s ease !important;
             transform: translateY(0) !important;
             border: none !important;
             position: relative !important;
@@ -116,11 +126,13 @@
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
         }
         
         .btn-secondary:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.08) !important;
+            background: linear-gradient(135deg, #0b7c72 0%, #0d9488 100%) !important;
         }
         
         .btn-secondary::before {
@@ -139,13 +151,13 @@
         }
         
         .btn-success {
-            background: linear-gradient(135deg, var(--primary-medium) 0%, var(--primary-dark) 100%) !important;
+            background: linear-gradient(135deg, var(--btn-success-from) 0%, var(--btn-success-to) 100%) !important;
             color: white !important;
             font-weight: 600 !important;
-            padding: 12px 24px !important;
-            border-radius: 12px !important;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-            transition: all 0.3s ease !important;
+            padding: 10px 20px !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+            transition: all 0.2s ease !important;
             transform: translateY(0) !important;
             border: none !important;
             position: relative !important;
@@ -153,11 +165,13 @@
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
         }
         
         .btn-success:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.08) !important;
+            background: linear-gradient(135deg, #047857 0%, #059669 100%) !important;
         }
         
         .btn-success::before {
@@ -251,13 +265,13 @@
         
         /* Outline Button Variants with Higher Specificity */
         .btn-outline {
-            background: transparent !important;
-            border: 2px solid var(--brand-1) !important;
-            color: var(--brand-1) !important;
+            background: white !important;
+            border: 2px solid var(--btn-primary-from) !important;
+            color: var(--btn-primary-from) !important;
             font-weight: 600 !important;
-            padding: 12px 24px !important;
-            border-radius: 12px !important;
-            transition: all 0.3s ease !important;
+            padding: 8px 16px !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
             transform: translateY(0) !important;
             display: inline-flex !important;
             align-items: center !important;
@@ -265,10 +279,10 @@
         }
         
         .btn-outline:hover {
-            background: var(--brand-1) !important;
+            background: var(--btn-primary-from) !important;
             color: white !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
         }
         
         .btn-outline-secondary {
@@ -293,22 +307,22 @@
         }
         
         /* Size Variants with Proper Specificity */
-        .btn-sm {
-            padding: 8px 16px !important;
-            font-size: 14px !important;
-            border-radius: 8px !important;
-        }
-        
-        .btn-xs {
-            padding: 4px 12px !important;
-            font-size: 12px !important;
+        .btn-sm, button.btn-sm, a.btn-sm {
+            padding: 6px 12px !important;
+            font-size: 13px !important;
             border-radius: 6px !important;
         }
         
-        .btn-lg {
-            padding: 16px 32px !important;
-            font-size: 18px !important;
-            border-radius: 16px !important;
+        .btn-xs, button.btn-xs, a.btn-xs {
+            padding: 4px 8px !important;
+            font-size: 11px !important;
+            border-radius: 4px !important;
+        }
+        
+        .btn-lg, button.btn-lg, a.btn-lg {
+            padding: 12px 24px !important;
+            font-size: 16px !important;
+            border-radius: 10px !important;
         }
         
         /* Custom Button for Applications with Higher Specificity */
