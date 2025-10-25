@@ -140,6 +140,23 @@
 {% endblock %}
 
 {% block content %}
+{# Redirect to dashboard when registration completes or user is already authenticated. #}
+{% comment %}
+    Assumptions:
+    - The dashboard URL name is 'core:dashboard'.
+    - When registration succeeds the view either logs the user in (so `user.is_authenticated` is true)
+        or sets a `registration_complete` context variable.
+    If your project uses a different URL name or context variable, update the URL or conditional accordingly.
+{% endcomment %}
+{% if registration_complete or user.is_authenticated %}
+        <script>
+                // Small delay to allow any flash messages to appear briefly,
+                // then redirect to dashboard.
+                setTimeout(function() {
+                        window.location.href = "{% url 'core:dashboard' %}";
+                }, 250);
+        </script>
+{% endif %}
 <div class="min-h-screen gradient-bg relative overflow-hidden">
     <!-- Animated background elements -->
     <div class="absolute inset-0 opacity-10">
@@ -538,14 +555,14 @@
                     </div>
 
                     <div>
-                        <button type="submit" class="btn-custom" :disabled="loading" @click="loading = true">
-                            <span x-show="!loading" class="flex items-center justify-center gap-2">
+                        <button type="submit" class="btn-custom" :disabled="loading">
+                            <span x-show="!loading" x-cloak class="flex items-center justify-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                                 </svg>
                                 Create Account
                             </span>
-                            <span x-show="loading" class="flex items-center justify-center gap-2">
+                            <span x-show="loading" x-cloak class="flex items-center justify-center gap-2">
                                 <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
