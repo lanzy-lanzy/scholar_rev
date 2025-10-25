@@ -9,7 +9,19 @@ from django.db.models import Q, Count
 from django.utils import timezone
 from django.core.paginator import Paginator
 from datetime import timedelta
-from .forms import CustomUserCreationForm, UserProfileForm, DocumentUploadForm, ApplicationForm, UserUpdateForm, ScholarshipForm, DynamicApplicationForm
+from django.core.exceptions import ValidationError
+from .forms import (
+    CustomUserCreationForm,
+    UserProfileForm,
+    DocumentUploadForm,
+    ApplicationForm,
+    UserUpdateForm,
+    ScholarshipForm,
+    DynamicApplicationForm,
+    RegistrationStep1Form,
+    RegistrationStep2Form,
+    RegistrationStudentStep3Form,
+)
 from .models import Scholarship, Application, Notification, ApplicationDocument, DocumentRequirement
 
 
@@ -29,40 +41,117 @@ def landing_page(request):
     return render(request, 'landing.html', context)
 
 
+def _finalize_registration(request, registration_data):
+    """Helper to create the user using the full data collected across steps."""
+    # Build a data dict suitable for CustomUserCreationForm
+    form_data = {
+        'username': registration_data.get('username'),
+        'email': registration_data.get('email'),
+        'password1': registration_data.get('password1'),
+        'password2': registration_data.get('password2'),
+        'first_name': registration_data.get('first_name'),
+        'last_name': registration_data.get('last_name'),
+        'user_type': registration_data.get('user_type'),
+        'student_id': registration_data.get('student_id'),
+        'campus': registration_data.get('campus'),
+        'year_level': registration_data.get('year_level'),
+        'department': registration_data.get('department'),
+        'phone_number': registration_data.get('phone_number'),
+    }
+
+    form = CustomUserCreationForm(form_data)
+    if form.is_valid():
+        user = form.save()
+        login(request, user)
+        # Clear session data
+        try:
+            del request.session['registration_data']
+        except KeyError:
+            pass
+
+        messages.success(request, f"Welcome, {user.username}! Your account has been created successfully.")
+        user_profile = getattr(user, 'profile', None)
+        if user_profile:
+            if user_profile.user_type == 'student':
+                return redirect('core:student_dashboard')
+            elif user_profile.user_type == 'admin':
+                return redirect('core:admin_dashboard')
+            elif user_profile.user_type == 'osas':
+                return redirect('core:osas_dashboard')
+        return redirect('core:dashboard_router')
+
+    # If final form invalid, render the final step with errors
+    return render(request, 'auth/register_step1.html', {'form': form, 'step': 'final_error'})
+
+
 def register(request):
-    """User registration view."""
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            username = form.cleaned_data.get('username')
-            
-            # Automatically log in the user
-            login(request, user)
-            
-            # Get user profile to determine dashboard
-            user_profile = getattr(user, 'profile', None)
-            
-            # Success message
-            messages.success(request, f'Welcome, {username}! Your account has been created successfully.')
-            
-            # Redirect to appropriate dashboard based on user type
-            if user_profile:
-                if user_profile.user_type == 'student':
-                    return redirect('core:student_dashboard')
-                elif user_profile.user_type == 'admin':
-                    return redirect('core:admin_dashboard')
-                elif user_profile.user_type == 'osas':
-                    return redirect('core:osas_dashboard')
-            
-            # Fallback to dashboard router
-            return redirect('core:dashboard_router')
+    """Session-backed multi-step registration.
+
+    Steps:
+      1. Account (username, email, password, user_type)
+      2. Personal (first_name, last_name, department, phone)
+      3. Student (student_id, campus, year_level) - conditional when user_type == 'student'
+    """
+    # Determine current step from POST (hidden field) or GET param
+    try:
+        step = int(request.POST.get('step') or request.GET.get('step') or 1)
+    except ValueError:
+        step = 1
+
+    # Ensure session storage exists
+    registration_data = request.session.get('registration_data', {})
+
+    # Step 1: account
+    if step == 1:
+        if request.method == 'POST':
+            form = RegistrationStep1Form(request.POST)
+            if form.is_valid():
+                registration_data.update(form.cleaned_data)
+                request.session['registration_data'] = registration_data
+                # If user_type is student we need step 2+3, otherwise step 2 then finalize
+                return redirect(f"{request.path}?step=2")
+            else:
+                messages.error(request, 'Please correct the errors below.')
         else:
-            messages.error(request, 'Please correct the errors below.')
-    else:
-        form = CustomUserCreationForm()
-    
-    return render(request, 'auth/register.html', {'form': form})
+            form = RegistrationStep1Form(initial=registration_data)
+
+        return render(request, 'auth/register_step1.html', {'form': form, 'step': 1})
+
+    # Step 2: personal details
+    if step == 2:
+        if request.method == 'POST':
+            form = RegistrationStep2Form(request.POST)
+            if form.is_valid():
+                registration_data.update(form.cleaned_data)
+                request.session['registration_data'] = registration_data
+                # If student, go to step 3, else finalize
+                if registration_data.get('user_type') == 'student':
+                    return redirect(f"{request.path}?step=3")
+                return _finalize_registration(request, registration_data)
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        else:
+            form = RegistrationStep2Form(initial=registration_data)
+
+        return render(request, 'auth/register_step2.html', {'form': form, 'step': 2})
+
+    # Step 3: student-specific
+    if step == 3:
+        if request.method == 'POST':
+            form = RegistrationStudentStep3Form(request.POST)
+            if form.is_valid():
+                registration_data.update(form.cleaned_data)
+                request.session['registration_data'] = registration_data
+                return _finalize_registration(request, registration_data)
+            else:
+                messages.error(request, 'Please correct the errors below.')
+        else:
+            form = RegistrationStudentStep3Form(initial=registration_data)
+
+        return render(request, 'auth/register_step3.html', {'form': form, 'step': 3})
+
+    # Fallback: redirect to step 1
+    return redirect(f"{request.path}?step=1")
 
 
 def custom_logout(request):

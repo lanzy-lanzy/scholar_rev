@@ -160,6 +160,51 @@ class CustomUserCreationForm(UserCreationForm):
         return user
 
 
+class RegistrationStep1Form(forms.Form):
+    """Step 1: basic account information (username, email, password, user type)."""
+    username = forms.CharField(max_length=150, required=True)
+    email = forms.EmailField(required=True)
+    password1 = forms.CharField(required=True, widget=forms.PasswordInput)
+    password2 = forms.CharField(required=True, widget=forms.PasswordInput)
+    user_type = forms.ChoiceField(choices=UserProfile.USER_TYPE_CHOICES, initial='student')
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get('password1')
+        p2 = cleaned.get('password2')
+        if p1 and p2 and p1 != p2:
+            raise ValidationError('Passwords do not match.')
+        # username/email uniqueness checks
+        username = cleaned.get('username')
+        email = cleaned.get('email')
+        if username and User.objects.filter(username=username).exists():
+            raise ValidationError('A user with that username already exists.')
+        if email and User.objects.filter(email=email).exists():
+            raise ValidationError('A user with that email already exists.')
+        return cleaned
+
+
+class RegistrationStep2Form(forms.Form):
+    """Step 2: personal details."""
+    first_name = forms.CharField(max_length=150, required=True)
+    last_name = forms.CharField(max_length=150, required=True)
+    department = forms.CharField(max_length=100, required=False)
+    phone_number = forms.CharField(max_length=15, required=False)
+
+
+class RegistrationStudentStep3Form(forms.Form):
+    """Step 3: student-specific information."""
+    student_id = forms.CharField(max_length=20, required=True)
+    campus = forms.ChoiceField(choices=UserProfile.CAMPUS_CHOICES, required=True)
+    year_level = forms.ChoiceField(choices=UserProfile.YEAR_LEVEL_CHOICES, required=True)
+
+    def clean_student_id(self):
+        sid = self.cleaned_data.get('student_id')
+        if UserProfile.objects.filter(student_id=sid).exists():
+            raise ValidationError('A student with this ID already exists.')
+        return sid
+
+
 class UserProfileForm(forms.ModelForm):
     """Form for updating user profile information."""
     

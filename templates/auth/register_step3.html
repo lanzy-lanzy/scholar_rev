@@ -1,0 +1,88 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Register - Step 3{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root { --primary-dark: var(--brand-1); --primary-medium: var(--brand-2); --accent-warm: var(--brand-4); --neutral-light: var(--brand-3); }
+  .gradient-bg { background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%); }
+  .glass-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 25px 45px rgba(0,0,0,0.1); }
+  .custom-input, .form-input, .form-select { transition: all .25s ease; border: 2px solid #e5e7eb; background: rgba(255,255,255,0.9); padding: .75rem 1rem; border-radius: .5rem; width:100%; }
+  .custom-input:focus { border-color: var(--primary-dark); box-shadow: 0 0 0 3px rgba(44,57,48,0.08); background:white; outline:none; }
+  .btn-custom { background: linear-gradient(45deg,var(--primary-dark),var(--primary-medium)); color:white; border:none; padding:.75rem 1.25rem; border-radius: .75rem; font-weight:700; }
+  .btn-custom.bg-gray-300 { background: #e5e7eb; color:#1f2937; }
+  .progress { height:8px; background:#eef2ff; border-radius:999px; }
+  .progress > .bar { height:100%; background:linear-gradient(90deg,#34d399,#60a5fa); border-radius:999px; transition: width .3s ease; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen gradient-bg relative overflow-hidden">
+  <div class="absolute inset-0 opacity-10">
+    <div class="absolute top-20 left-10 w-32 h-32 bg-white rounded-full floating"></div>
+    <div class="absolute bottom-20 right-10 w-24 h-24 bg-neutral-light rounded-full floating" style="animation-delay:3s"></div>
+  </div>
+
+  <div class="flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8 relative z-10">
+    <div class="max-w-md w-full space-y-8">
+      <div class="text-center">
+        <div class="mx-auto h-16 w-16 bg-white rounded-full flex items-center justify-center mb-6 shadow-lg">
+          <svg class="h-8 w-8" style="color: var(--primary-dark);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.657-1.343-3-3-3S6 9.343 6 11s1.343 3 3 3 3-1.343 3-3zM21 20v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2"></path>
+          </svg>
+        </div>
+        <h2 class="text-3xl font-extrabold hero-text-white mb-2">Student information</h2>
+        <p class="text-sm hero-text-white">Step 3 of 3 — academic details</p>
+      </div>
+
+      <div class="glass-card rounded-2xl p-6">
+        <div class="mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <div class="text-sm font-medium text-gray-700">Progress</div>
+            <div class="text-sm text-gray-500">Step 3 of 3</div>
+          </div>
+          <div class="progress"><div class="bar" style="width:100%"></div></div>
+        </div>
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="step" value="3">
+
+          <div class="space-y-4 student-section p-3 rounded-lg">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Student ID</label>
+              <input name="student_id" value="{{ form.student_id.value|default:'' }}" class="custom-input" placeholder="Enter your student ID">
+              {% if form.student_id.errors %}{% for e in form.student_id.errors %}<p class="text-red-600 text-sm">{{ e }}</p>{% endfor %}{% endif %}
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Campus</label>
+              <select name="campus" class="custom-input">
+                {% for value,label in form.campus.field.choices %}
+                  <option value="{{ value }}" {% if form.campus.value == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              {% if form.campus.errors %}{% for e in form.campus.errors %}<p class="text-red-600 text-sm">{{ e }}</p>{% endfor %}{% endif %}
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Year level</label>
+              <select name="year_level" class="custom-input">
+                {% for value,label in form.year_level.field.choices %}
+                  <option value="{{ value }}" {% if form.year_level.value == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              {% if form.year_level.errors %}{% for e in form.year_level.errors %}<p class="text-red-600 text-sm">{{ e }}</p>{% endfor %}{% endif %}
+            </div>
+          </div>
+
+          <div class="mt-6 flex items-center justify-between">
+            <a href="?step=2" class="btn-custom bg-gray-300 text-gray-800">Previous</a>
+            <button type="submit" class="btn-custom">Create Account</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
