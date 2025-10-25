@@ -21,7 +21,7 @@ def admin_pending_approvals(request):
     # Get applications that OSAS has recommended (approved or rejected)
     applications = Application.objects.filter(
         status__in=['osas_approved', 'osas_rejected']
-    ).select_related('student', 'scholarship', 'reviewed_by').order_by('reviewed_at')
+    ).select_related('student', 'student__profile', 'scholarship', 'reviewed_by').order_by('reviewed_at')
     
     # Filter by OSAS recommendation
     recommendation_filter = request.GET.get('recommendation', 'all')
@@ -29,6 +29,11 @@ def admin_pending_approvals(request):
         applications = applications.filter(status='osas_approved')
     elif recommendation_filter == 'rejected':
         applications = applications.filter(status='osas_rejected')
+    
+    # Filter by campus
+    campus_filter = request.GET.get('campus')
+    if campus_filter:
+        applications = applications.filter(student__profile__campus=campus_filter)
     
     # Filter by scholarship
     scholarship_filter = request.GET.get('scholarship')
@@ -57,18 +62,23 @@ def admin_pending_approvals(request):
     }
     
     # Get scholarships for filter
-    from .models import Scholarship
+    from .models import Scholarship, UserProfile
     scholarships_for_filter = Scholarship.objects.filter(
         applications__status__in=['osas_approved', 'osas_rejected']
     ).distinct().order_by('title')
     
+    # Get campus choices for filter
+    campus_choices = UserProfile.CAMPUS_CHOICES
+    
     context = {
         'page_obj': page_obj,
         'recommendation_filter': recommendation_filter,
+        'campus_filter': campus_filter,
         'scholarship_filter': scholarship_filter,
         'search_query': search_query,
         'recommendation_counts': recommendation_counts,
         'scholarships_for_filter': scholarships_for_filter,
+        'campus_choices': campus_choices,
     }
     
     return render(request, 'admin/pending_approvals.html', context)
@@ -188,7 +198,7 @@ def admin_review_history(request):
     applications = Application.objects.filter(
         final_decision_by__isnull=False
     ).select_related(
-        'student', 'scholarship', 'reviewed_by', 'final_decision_by'
+        'student', 'student__profile', 'scholarship', 'reviewed_by', 'final_decision_by'
     ).order_by('-final_decision_at')
     
     # Filter by decision
@@ -197,6 +207,11 @@ def admin_review_history(request):
         applications = applications.filter(status='approved')
     elif decision_filter == 'rejected':
         applications = applications.filter(status='rejected')
+    
+    # Filter by campus
+    campus_filter = request.GET.get('campus')
+    if campus_filter:
+        applications = applications.filter(student__profile__campus=campus_filter)
     
     # Filter by admin who made decision
     admin_filter = request.GET.get('admin')
@@ -215,11 +230,17 @@ def admin_review_history(request):
         'rejected': Application.objects.filter(status='rejected', final_decision_by__isnull=False).count(),
     }
     
+    # Get campus choices for filter
+    from .models import UserProfile
+    campus_choices = UserProfile.CAMPUS_CHOICES
+    
     context = {
         'page_obj': page_obj,
         'decision_filter': decision_filter,
+        'campus_filter': campus_filter,
         'admin_filter': admin_filter,
         'decision_counts': decision_counts,
+        'campus_choices': campus_choices,
     }
     
     return render(request, 'admin/review_history.html', context)

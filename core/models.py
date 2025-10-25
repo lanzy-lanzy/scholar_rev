@@ -28,9 +28,16 @@ class UserProfile(models.Model):
         ('graduate', 'Graduate Student'),
     ]
     
+    CAMPUS_CHOICES = [
+        ('dumingag', 'Dumingag Campus'),
+        ('mati', 'Mati Campus'),
+        ('canuto', 'Canuto Campus'),
+    ]
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
     student_id = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    campus = models.CharField(max_length=20, choices=CAMPUS_CHOICES, null=True, blank=True, help_text='Select your campus')
     department = models.CharField(max_length=100, null=True, blank=True)
     year_level = models.CharField(max_length=10, choices=YEAR_LEVEL_CHOICES, null=True, blank=True)
     phone_number = models.CharField(max_length=15, null=True, blank=True)

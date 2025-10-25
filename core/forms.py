@@ -61,6 +61,14 @@ class CustomUserCreationForm(UserCreationForm):
         })
     )
     
+    campus = forms.ChoiceField(
+        choices=[('', 'Select Campus')] + UserProfile.CAMPUS_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+        })
+    )
+    
     year_level = forms.ChoiceField(
         choices=UserProfile.YEAR_LEVEL_CHOICES,
         required=False,
@@ -107,12 +115,15 @@ class CustomUserCreationForm(UserCreationForm):
         cleaned_data = super().clean()
         user_type = cleaned_data.get('user_type')
         student_id = cleaned_data.get('student_id')
+        campus = cleaned_data.get('campus')
         year_level = cleaned_data.get('year_level')
         
         # Validate student-specific fields
         if user_type == 'student':
             if not student_id:
                 raise ValidationError("Student ID is required for students.")
+            if not campus:
+                raise ValidationError("Campus is required for students.")
             if not year_level:
                 raise ValidationError("Year level is required for students.")
             
@@ -141,6 +152,7 @@ class CustomUserCreationForm(UserCreationForm):
                 user=user,
                 user_type=self.cleaned_data['user_type'],
                 student_id=self.cleaned_data.get('student_id'),
+                campus=self.cleaned_data.get('campus'),
                 year_level=self.cleaned_data.get('year_level'),
                 department=self.cleaned_data.get('department'),
                 phone_number=self.cleaned_data.get('phone_number')
@@ -154,7 +166,7 @@ class UserProfileForm(forms.ModelForm):
     
     class Meta:
         model = UserProfile
-        fields = ['profile_picture', 'phone_number', 'student_id', 'department', 'year_level']
+        fields = ['profile_picture', 'phone_number', 'student_id', 'campus', 'department', 'year_level']
         widgets = {
             'profile_picture': forms.FileInput(attrs={
                 'class': 'mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100',
@@ -167,6 +179,9 @@ class UserProfileForm(forms.ModelForm):
             'student_id': forms.TextInput(attrs={
                 'class': 'mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white',
                 'placeholder': 'Enter your student ID'
+            }),
+            'campus': forms.Select(attrs={
+                'class': 'mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white'
             }),
             'department': forms.TextInput(attrs={
                 'class': 'mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white',

@@ -45,12 +45,23 @@
 
             <!-- Filters -->
             <div class="p-4 bg-gray-50">
-                <form method="get" class="flex gap-4">
+                <form method="get" class="flex flex-wrap gap-4">
                     <input type="hidden" name="decision" value="{{ decision_filter }}">
 
+                    <div class="min-w-[200px]">
+                        <select name="campus" 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">All Campuses</option>
+                            {% for value, label in campus_choices %}
+                                <option value="{{ value }}" {% if campus_filter == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
                     <div class="flex items-center">
-                        <input type="checkbox" id="my_decisions" name="admin" value="me" {% if admin_filter=='me'
-                            %}checked{% endif %}
+                        <input type="checkbox" id="my_decisions" name="admin" value="me" {% if admin_filter == 'me' %}checked{% endif %}
                             class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                         <label for="my_decisions" class="ml-2 text-sm text-gray-700">
                             Show only my decisions
@@ -80,6 +91,9 @@
                             Student
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Campus
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Scholarship
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -105,6 +119,15 @@
                             </div>
                             <div class="text-sm text-gray-500">
                                 {{ application.student.email }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                {% if application.student.profile.campus %}
+                                    {{ application.student.profile.get_campus_display }}
+                                {% else %}
+                                    <span class="text-gray-400">Not specified</span>
+                                {% endif %}
                             </div>
                         </td>
                         <td class="px-6 py-4">

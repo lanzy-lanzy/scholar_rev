@@ -54,6 +54,18 @@
                     </div>
                     
                     <div class="min-w-[200px]">
+                        <select name="campus" 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">All Campuses</option>
+                            {% for value, label in campus_choices %}
+                                <option value="{{ value }}" {% if campus_filter == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="min-w-[200px]">
                         <select name="scholarship" 
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             <option value="">All Scholarships</option>
@@ -98,6 +110,16 @@
                                     <div>
                                         <p class="text-sm text-gray-600">Scholarship</p>
                                         <p class="font-medium text-gray-900">{{ application.scholarship.title }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">Campus</p>
+                                        <p class="font-medium text-gray-900">
+                                            {% if application.student.profile.campus %}
+                                                {{ application.student.profile.get_campus_display }}
+                                            {% else %}
+                                                <span class="text-gray-400">Not specified</span>
+                                            {% endif %}
+                                        </p>
                                     </div>
                                     <div>
                                         <p class="text-sm text-gray-600">GPA</p>
