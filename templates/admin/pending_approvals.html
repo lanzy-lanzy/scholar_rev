@@ -1,0 +1,177 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Pending Final Approvals - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Pending Final Approvals</h1>
+            <p class="mt-2 text-gray-600">Review OSAS staff recommendations and make final decisions</p>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="bg-white rounded-lg shadow mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="flex -mb-px">
+                    <a href="?recommendation=all" 
+                       class="{% if recommendation_filter == 'all' %}border-blue-500 text-blue-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
+                        All Pending
+                        <span class="ml-2 py-0.5 px-2 rounded-full text-xs {% if recommendation_filter == 'all' %}bg-blue-100 text-blue-600{% else %}bg-gray-100 text-gray-600{% endif %}">
+                            {{ recommendation_counts.all }}
+                        </span>
+                    </a>
+                    <a href="?recommendation=approved" 
+                       class="{% if recommendation_filter == 'approved' %}border-teal-500 text-teal-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
+                        OSAS Recommended Approval
+                        <span class="ml-2 py-0.5 px-2 rounded-full text-xs {% if recommendation_filter == 'approved' %}bg-teal-100 text-teal-600{% else %}bg-gray-100 text-gray-600{% endif %}">
+                            {{ recommendation_counts.approved }}
+                        </span>
+                    </a>
+                    <a href="?recommendation=rejected" 
+                       class="{% if recommendation_filter == 'rejected' %}border-purple-500 text-purple-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
+                        OSAS Recommended Rejection
+                        <span class="ml-2 py-0.5 px-2 rounded-full text-xs {% if recommendation_filter == 'rejected' %}bg-purple-100 text-purple-600{% else %}bg-gray-100 text-gray-600{% endif %}">
+                            {{ recommendation_counts.rejected }}
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Filters -->
+            <div class="p-4 bg-gray-50 border-b border-gray-200">
+                <form method="get" class="flex flex-wrap gap-4">
+                    <input type="hidden" name="recommendation" value="{{ recommendation_filter }}">
+                    
+                    <div class="flex-1 min-w-[200px]">
+                        <input type="text" 
+                               name="search" 
+                               value="{{ search_query }}"
+                               placeholder="Search by student name..."
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <div class="min-w-[200px]">
+                        <select name="scholarship" 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">All Scholarships</option>
+                            {% for scholarship in scholarships_for_filter %}
+                                <option value="{{ scholarship.id }}" {% if scholarship_filter == scholarship.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ scholarship.title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <button type="submit" 
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Apply Filters
+                    </button>
+                    
+                    <a href="{% url 'core:admin_pending_approvals' %}" 
+                       class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                        Clear
+                    </a>
+                </form>
+            </div>
+        </div>
+
+        <!-- Applications List -->
+        {% if page_obj %}
+            <div class="space-y-4">
+                {% for application in page_obj %}
+                    <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <h3 class="text-xl font-semibold text-gray-900">
+                                        {{ application.student.get_full_name }}
+                                    </h3>
+                                    <span class="px-3 py-1 rounded-full text-sm font-medium {{ application.status_display_class }}">
+                                        {{ application.get_status_display }}
+                                    </span>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Scholarship</p>
+                                        <p class="font-medium text-gray-900">{{ application.scholarship.title }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">GPA</p>
+                                        <p class="font-medium text-gray-900">{{ application.gpa }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">Reviewed by OSAS</p>
+                                        <p class="font-medium text-gray-900">
+                                            {{ application.reviewed_by.get_full_name }}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">Review Date</p>
+                                        <p class="font-medium text-gray-900">
+                                            {{ application.reviewed_at|date:"M d, Y" }}
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                {% if application.reviewer_comments %}
+                                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                        <p class="text-sm font-medium text-gray-700 mb-1">OSAS Comments:</p>
+                                        <p class="text-gray-600">{{ application.reviewer_comments }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="ml-6">
+                                <a href="{% url 'core:admin_final_decision' application.id %}" 
+                                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                    Make Decision
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <div class="mt-8 flex justify-center">
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}&recommendation={{ recommendation_filter }}&scholarship={{ scholarship_filter }}&search={{ search_query }}" 
+                               class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                Previous
+                            </a>
+                        {% endif %}
+                        
+                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}&recommendation={{ recommendation_filter }}&scholarship={{ scholarship_filter }}&search={{ search_query }}" 
+                               class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                Next
+                            </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="bg-white rounded-lg shadow p-12 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <h3 class="mt-2 text-lg font-medium text-gray-900">No pending approvals</h3>
+                <p class="mt-1 text-gray-500">All OSAS recommendations have been processed.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

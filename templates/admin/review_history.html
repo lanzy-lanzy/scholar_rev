@@ -1,0 +1,176 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Review History - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Final Decision History</h1>
+            <p class="mt-2 text-gray-600">View all final decisions made by administrators</p>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="bg-white rounded-lg shadow mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="flex -mb-px">
+                    <a href="?decision=all"
+                        class="{% if decision_filter == 'all' %}border-blue-500 text-blue-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
+                        All Decisions
+                        <span
+                            class="ml-2 py-0.5 px-2 rounded-full text-xs {% if decision_filter == 'all' %}bg-blue-100 text-blue-600{% else %}bg-gray-100 text-gray-600{% endif %}">
+                            {{ decision_counts.all }}
+                        </span>
+                    </a>
+                    <a href="?decision=approved"
+                        class="{% if decision_filter == 'approved' %}border-green-500 text-green-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
+                        Approved
+                        <span
+                            class="ml-2 py-0.5 px-2 rounded-full text-xs {% if decision_filter == 'approved' %}bg-green-100 text-green-600{% else %}bg-gray-100 text-gray-600{% endif %}">
+                            {{ decision_counts.approved }}
+                        </span>
+                    </a>
+                    <a href="?decision=rejected"
+                        class="{% if decision_filter == 'rejected' %}border-red-500 text-red-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
+                        Rejected
+                        <span
+                            class="ml-2 py-0.5 px-2 rounded-full text-xs {% if decision_filter == 'rejected' %}bg-red-100 text-red-600{% else %}bg-gray-100 text-gray-600{% endif %}">
+                            {{ decision_counts.rejected }}
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Filters -->
+            <div class="p-4 bg-gray-50">
+                <form method="get" class="flex gap-4">
+                    <input type="hidden" name="decision" value="{{ decision_filter }}">
+
+                    <div class="flex items-center">
+                        <input type="checkbox" id="my_decisions" name="admin" value="me" {% if admin_filter=='me'
+                            %}checked{% endif %}
+                            class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="my_decisions" class="ml-2 text-sm text-gray-700">
+                            Show only my decisions
+                        </label>
+                    </div>
+
+                    <button type="submit"
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Apply Filter
+                    </button>
+
+                    <a href="{% url 'core:admin_review_history' %}"
+                        class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                        Clear
+                    </a>
+                </form>
+            </div>
+        </div>
+
+        <!-- History List -->
+        {% if page_obj %}
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Student
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Scholarship
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            OSAS Reviewer
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Admin Decision
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Decision By
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Decision Date
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for application in page_obj %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">
+                                {{ application.student.get_full_name }}
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                {{ application.student.email }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ application.scholarship.title }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                {{ application.reviewed_by.get_full_name }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span
+                                class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ application.status_display_class }}">
+                                {{ application.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                {{ application.final_decision_by.get_full_name }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ application.final_decision_at|date:"M d, Y H:i" }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="mt-6 flex justify-center">
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}&decision={{ decision_filter }}&admin={{ admin_filter }}"
+                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Previous
+                </a>
+                {% endif %}
+
+                <span
+                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&decision={{ decision_filter }}&admin={{ admin_filter }}"
+                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Next
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="bg-white rounded-lg shadow p-12 text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                </path>
+            </svg>
+            <h3 class="mt-2 text-lg font-medium text-gray-900">No decisions found</h3>
+            <p class="mt-1 text-gray-500">No final decisions have been made yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

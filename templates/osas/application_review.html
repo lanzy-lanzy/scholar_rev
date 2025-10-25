@@ -327,21 +327,21 @@
                         <h3 class="text-lg font-bold">Review Decision</h3>
                     </div>
                     <div class="px-6 py-6">
-                        <form method="POST" action="{% url 'core:submit_review' application.id %}">
+                        <form method="POST">
                             {% csrf_token %}
                             
                             <!-- Decision -->
                             <div class="mb-6">
-                                <label for="decision" class="info-label mb-3 block">Decision</label>
-                                <select name="decision" id="decision" required 
+                                <label for="action" class="info-label mb-3 block">Decision</label>
+                                <select name="action" id="action" required 
                                         class="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 transition-all"
                                         style="border-color: var(--neutral-light); color: var(--primary-dark);"
                                         onfocus="this.style.borderColor='var(--accent-warm)'; this.style.boxShadow='0 0 0 3px rgba(162, 123, 92, 0.1)'"
                                         onblur="this.style.borderColor='var(--neutral-light)'; this.style.boxShadow='none'">
                                     <option value="">Select a decision...</option>
-                                    <option value="approved">✓ Approve Application</option>
-                                    <option value="rejected">✗ Reject Application</option>
-                                    <option value="additional_info_required">⚠ Request Additional Information</option>
+                                    <option value="approve">✓ Recommend for Approval</option>
+                                    <option value="reject">✗ Recommend for Rejection</option>
+                                    <option value="request_info">⚠ Request Additional Information</option>
                                 </select>
                             </div>
 

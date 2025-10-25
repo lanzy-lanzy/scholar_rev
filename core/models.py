@@ -231,8 +231,10 @@ class Application(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending Review'),
         ('under_review', 'Under Review'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
+        ('osas_approved', 'OSAS Recommended for Approval'),
+        ('osas_rejected', 'OSAS Recommended for Rejection'),
+        ('approved', 'Approved by Admin'),
+        ('rejected', 'Rejected by Admin'),
         ('additional_info_required', 'Additional Information Required'),
     ]
     
@@ -277,6 +279,18 @@ class Application(models.Model):
     )
     reviewer_comments = models.TextField(blank=True, null=True)
     
+    # Admin final decision fields
+    final_decision_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='final_decisions',
+        null=True,
+        blank=True,
+        help_text='Admin who made the final approval/rejection decision'
+    )
+    final_decision_at = models.DateTimeField(null=True, blank=True)
+    final_decision_comments = models.TextField(blank=True, null=True)
+    
     class Meta:
         verbose_name = 'Application'
         verbose_name_plural = 'Applications'
@@ -292,6 +306,8 @@ class Application(models.Model):
         status_classes = {
             'pending': 'bg-yellow-100 text-yellow-800',
             'under_review': 'bg-blue-100 text-blue-800',
+            'osas_approved': 'bg-teal-100 text-teal-800',
+            'osas_rejected': 'bg-purple-100 text-purple-800',
             'approved': 'bg-green-100 text-green-800',
             'rejected': 'bg-red-100 text-red-800',
             'additional_info_required': 'bg-orange-100 text-orange-800',

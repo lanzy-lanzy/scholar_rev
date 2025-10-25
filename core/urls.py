@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from . import views_admin_approval
 
 app_name = 'core'
 
@@ -29,6 +30,11 @@ urlpatterns = [
     
     # Admin-specific URLs for applications
     path('dashboard/admin/applications/<int:application_id>/review/', views.admin_review_application, name='admin_review_application'),
+    
+    # Admin final approval URLs (two-tier approval system)
+    path('dashboard/admin/pending-approvals/', views_admin_approval.admin_pending_approvals, name='admin_pending_approvals'),
+    path('dashboard/admin/final-decision/<int:application_id>/', views_admin_approval.admin_final_decision, name='admin_final_decision'),
+    path('dashboard/admin/review-history/', views_admin_approval.admin_review_history, name='admin_review_history'),
     
     # Student-specific URLs
     path('scholarships/', views.scholarships_list, name='scholarships_list'),

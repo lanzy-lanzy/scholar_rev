@@ -325,42 +325,46 @@ def application_review(request, application_id):
         
         if action in ['approve', 'reject', 'request_info']:
             if action == 'approve':
-                # Check if scholarship still has available slots
-                if application.scholarship.available_slots_remaining > 0:
-                    application.mark_as_reviewed(
-                        reviewer=request.user,
-                        status='approved',
-                        comments=comments
-                    )
-                    messages.success(request, f'Application approved for {application.student.get_full_name()}.')
-                    
-                    # Create notification for student
-                    Notification.objects.create(
-                        recipient=application.student,
-                        title='Scholarship Application Approved!',
-                        message=f'Congratulations! Your application for {application.scholarship.title} has been approved.',
-                        notification_type='success',
-                        related_application=application
-                    )
-                else:
-                    messages.error(request, 'Cannot approve - no more slots available for this scholarship.')
-                    
-            elif action == 'reject':
+                # OSAS recommends for approval - Admin will make final decision
                 application.mark_as_reviewed(
                     reviewer=request.user,
-                    status='rejected',
+                    status='osas_approved',
                     comments=comments
                 )
-                messages.success(request, f'Application rejected for {application.student.get_full_name()}.')
+                messages.success(request, f'Application recommended for approval. Awaiting admin final decision.')
                 
-                # Create notification for student
-                Notification.objects.create(
-                    recipient=application.student,
-                    title='Scholarship Application Update',
-                    message=f'Your application for {application.scholarship.title} has been reviewed.',
-                    notification_type='info',
-                    related_application=application
+                # Create notification for admins
+                from django.contrib.auth.models import User
+                admins = User.objects.filter(profile__user_type='admin')
+                for admin in admins:
+                    Notification.objects.create(
+                        recipient=admin,
+                        title='New Application Recommended for Approval',
+                        message=f'OSAS staff {request.user.get_full_name()} recommends approval for {application.student.get_full_name()}\'s application to {application.scholarship.title}.',
+                        notification_type='info',
+                        related_application=application
+                    )
+                    
+            elif action == 'reject':
+                # OSAS recommends for rejection - Admin will make final decision
+                application.mark_as_reviewed(
+                    reviewer=request.user,
+                    status='osas_rejected',
+                    comments=comments
                 )
+                messages.success(request, f'Application recommended for rejection. Awaiting admin final decision.')
+                
+                # Create notification for admins
+                from django.contrib.auth.models import User
+                admins = User.objects.filter(profile__user_type='admin')
+                for admin in admins:
+                    Notification.objects.create(
+                        recipient=admin,
+                        title='New Application Recommended for Rejection',
+                        message=f'OSAS staff {request.user.get_full_name()} recommends rejection for {application.student.get_full_name()}\'s application to {application.scholarship.title}.',
+                        notification_type='warning',
+                        related_application=application
+                    )
                 
             elif action == 'request_info':
                 application.mark_as_reviewed(
@@ -724,51 +728,9 @@ def review_application(request, application_id):
 
 @login_required
 def submit_review(request, application_id):
-    """Submit review decision for an application."""
-    if not (request.user.profile.is_osas or request.user.profile.is_admin):
-        messages.error(request, 'Access denied. OSAS or Administrator access required.')
-        return redirect('core:landing_page')
-    
-    if request.method == 'POST':
-        application = get_object_or_404(Application, id=application_id)
-        decision = request.POST.get('decision')
-        comments = request.POST.get('comments', '')
-        
-        if decision in ['approved', 'rejected', 'additional_info_required']:
-            # Update application status
-            application.status = decision
-            application.reviewed_by = request.user
-            application.reviewer_comments = comments
-            application.reviewed_at = timezone.now()
-            application.save()
-            
-            # Create notification for student
-            if decision == 'approved':
-                notification_title = 'Scholarship Application Approved!'
-                notification_message = f'Congratulations! Your application for {application.scholarship.title} has been approved.'
-                notification_type = 'success'
-            elif decision == 'rejected':
-                notification_title = 'Scholarship Application Update'
-                notification_message = f'Your application for {application.scholarship.title} has been reviewed.'
-                notification_type = 'info'
-            else:  # additional_info_required
-                notification_title = 'Additional Information Required'
-                notification_message = f'Please provide additional information for your {application.scholarship.title} application.'
-                notification_type = 'warning'
-            
-            Notification.objects.create(
-                recipient=application.student,
-                title=notification_title,
-                message=notification_message,
-                notification_type=notification_type,
-                related_application=application
-            )
-            
-            messages.success(request, f'Review submitted successfully.')
-            return redirect('core:review_queue')
-        else:
-            messages.error(request, 'Invalid decision.')
-    
+    """Submit review decision for an application - DEPRECATED, redirects to application_review."""
+    # This view is deprecated in favor of the two-tier approval system
+    # Redirect to the application_review view which handles the new workflow
     return redirect('core:review_application', application_id=application_id)
 
 

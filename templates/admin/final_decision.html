@@ -1,0 +1,223 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Final Decision - {{ application.scholarship.title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a href="{% url 'core:admin_pending_approvals' %}" 
+               class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Back to Pending Approvals
+            </a>
+        </div>
+
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-3xl font-bold text-gray-900">Final Decision Required</h1>
+                <span class="px-4 py-2 rounded-full text-sm font-medium {{ application.status_display_class }}">
+                    {{ application.get_status_display }}
+                </span>
+            </div>
+            <p class="text-gray-600">Review the OSAS recommendation and make your final decision</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Application Details -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Application Details</h2>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <p class="text-sm text-gray-600">Student</p>
+                            <p class="font-medium text-gray-900">{{ application.student.get_full_name }}</p>
+                            <p class="text-sm text-gray-500">{{ application.student.email }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Scholarship</p>
+                            <p class="font-medium text-gray-900">{{ application.scholarship.title }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">GPA</p>
+                            <p class="font-medium text-gray-900">{{ application.gpa }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Submitted</p>
+                            <p class="font-medium text-gray-900">{{ application.submitted_at|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <p class="text-sm font-medium text-gray-700 mb-2">Personal Statement</p>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <p class="text-gray-700 whitespace-pre-wrap">{{ application.personal_statement }}</p>
+                        </div>
+                    </div>
+
+                    {% if application.additional_info %}
+                        <div class="mb-6">
+                            <p class="text-sm font-medium text-gray-700 mb-2">Additional Information</p>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <p class="text-gray-700 whitespace-pre-wrap">{{ application.additional_info }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- OSAS Review -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">OSAS Staff Review</h2>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Reviewed By</p>
+                            <p class="font-medium text-gray-900">{{ application.reviewed_by.get_full_name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Review Date</p>
+                            <p class="font-medium text-gray-900">{{ application.reviewed_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600 mb-2">OSAS Recommendation</p>
+                        <span class="px-4 py-2 rounded-full text-sm font-medium {{ application.status_display_class }}">
+                            {% if application.status == 'osas_approved' %}
+                                ✓ Recommended for Approval
+                            {% else %}
+                                ✗ Recommended for Rejection
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    {% if application.reviewer_comments %}
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-2">OSAS Comments</p>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <p class="text-gray-700 whitespace-pre-wrap">{{ application.reviewer_comments }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Documents -->
+                {% if documents %}
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">Submitted Documents</h2>
+                        <div class="space-y-3">
+                            {% for doc in documents %}
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <svg class="w-8 h-8 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <div>
+                                            <p class="font-medium text-gray-900">{{ doc.name }}</p>
+                                            <p class="text-sm text-gray-500">{{ doc.file_size_human }}</p>
+                                        </div>
+                                    </div>
+                                    <a href="{{ doc.file.url }}" target="_blank" 
+                                       class="text-blue-600 hover:text-blue-800">
+                                        View
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Decision Panel -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-md p-6 sticky top-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Make Final Decision</h2>
+                    
+                    <form method="post" class="space-y-4">
+                        {% csrf_token %}
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Your Decision
+                            </label>
+                            <div class="space-y-2">
+                                <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <input type="radio" name="decision" value="approve" required
+                                           class="w-4 h-4 text-green-600 focus:ring-green-500">
+                                    <span class="ml-3 text-gray-900 font-medium">Approve Application</span>
+                                </label>
+                                <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <input type="radio" name="decision" value="reject" required
+                                           class="w-4 h-4 text-red-600 focus:ring-red-500">
+                                    <span class="ml-3 text-gray-900 font-medium">Reject Application</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="final_comments" class="block text-sm font-medium text-gray-700 mb-2">
+                                Final Comments (Optional)
+                            </label>
+                            <textarea id="final_comments" 
+                                      name="final_comments" 
+                                      rows="4"
+                                      placeholder="Add any additional comments about your decision..."
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-200">
+                            <button type="submit" 
+                                    class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                                Submit Final Decision
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Scholarship Info -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">Scholarship Info</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Award Amount:</span>
+                                <span class="font-medium text-gray-900">${{ application.scholarship.award_amount }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Available Slots:</span>
+                                <span class="font-medium text-gray-900">{{ application.scholarship.available_slots_remaining }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Deadline:</span>
+                                <span class="font-medium text-gray-900">{{ application.scholarship.application_deadline|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student's Other Applications -->
+                {% if student_other_apps %}
+                    <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3">Student's Other Applications</h3>
+                        <div class="space-y-2">
+                            {% for app in student_other_apps %}
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <p class="font-medium text-gray-900 text-sm">{{ app.scholarship.title }}</p>
+                                    <span class="inline-block mt-1 px-2 py-1 rounded text-xs {{ app.status_display_class }}">
+                                        {{ app.get_status_display }}
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
