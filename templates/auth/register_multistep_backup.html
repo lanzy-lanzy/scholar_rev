@@ -173,23 +173,18 @@
             
             <!-- Registration Card -->
             <div class="glass-card rounded-3xl p-8">
-                <form class="space-y-6" method="POST" x-data="{ 
-                    userType: '{{ form.user_type.value|default:"student" }}', 
-                    loading: false,
-                    step: 1,
-                    maxSteps: 3
-                }" @submit="loading = true">
+                <form class="space-y-6" method="POST" x-data="registrationForm()" @submit="loading = true">
                     {% csrf_token %}
                     
                     <!-- Progress Indicator -->
                     <div class="mb-8">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-sm font-medium text-gray-700">Registration Progress</span>
-                            <span class="text-sm text-gray-500" x-text="`Step ${step} of ${maxSteps}`"></span>
+                            <span class="text-sm text-gray-500" x-text="'Step ' + step + ' of ' + maxSteps"></span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
                             <div class="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full transition-all duration-300" 
-                                 :style="`width: ${(step / maxSteps) * 100}%`"></div>
+                                 :style="'width: ' + ((step / maxSteps) * 100) + '%'"></div>
                         </div>
                     </div>
                     
@@ -298,35 +293,54 @@
                         {% endif %}
                     </div>
                     
-                    <!-- User Type -->
-                    <div>
-                        <label for="{{ form.user_type.id_for_label }}" class="field-label">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6"></path>
-                            </svg>
-                            Account Type *
-                        </label>
-                        <select name="user_type" id="{{ form.user_type.id_for_label }}" x-model="userType" 
-                                class="custom-input {% if form.user_type.errors %}form-error{% endif %}">
-                            {% for value, label in form.user_type.field.choices %}
-                                <option value="{{ value }}" {% if form.user_type.value == value %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                        {% if form.user_type.errors %}
-                            {% for error in form.user_type.errors %}
-                                <p class="error-message">
-                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                    </svg>
-                                    {{ error }}
-                                </p>
-                            {% endfor %}
-                        {% endif %}
+                        <!-- User Type -->
+                        <div>
+                            <label for="{{ form.user_type.id_for_label }}" class="field-label">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6"></path>
+                                </svg>
+                                Account Type *
+                            </label>
+                            <select name="user_type" id="{{ form.user_type.id_for_label }}" x-model="userType" 
+                                    class="custom-input {% if form.user_type.errors %}form-error{% endif %}">
+                                {% for value, label in form.user_type.field.choices %}
+                                    <option value="{{ value }}" {% if form.user_type.value == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.user_type.errors %}
+                                {% for error in form.user_type.errors %}
+                                    <p class="error-message">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Step 1 Navigation -->
+                        <div class="flex justify-end">
+                            <button type="button" @click="step = 2" 
+                                    class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                                Next Step
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     
-                    <!-- Student-specific fields -->
-                    <div x-show="userType === 'student'" x-transition>
-                        <div class="student-section space-y-6 p-6 rounded-lg">
+                    <!-- Step 2: Student/Role-Specific Information -->
+                    <div x-show="step === 2" x-transition class="space-y-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">
+                            <span x-show="userType === 'student'">Student Information</span>
+                            <span x-show="userType !== 'student'">Additional Information</span>
+                        </h3>
+                        
+                        <!-- Student-specific fields -->
+                        <div x-show="userType === 'student'" x-transition>
+                            <div class="student-section space-y-6 p-6 rounded-lg">
                             <h4 class="font-semibold text-lg flex items-center gap-2" style="color: var(--primary-dark);">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
@@ -415,10 +429,10 @@
                                     {% endif %}
                                 </div>
                             </div>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Optional fields -->
+                        
+                        <!-- Optional fields for all users -->
                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div>
                             <label for="{{ form.department.id_for_label }}" class="field-label">
@@ -465,9 +479,31 @@
                                 {% endfor %}
                             {% endif %}
                         </div>
+                        
+                        <!-- Step 2 Navigation -->
+                        <div class="flex justify-between">
+                            <button type="button" @click="step = 1" 
+                                    class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path>
+                                </svg>
+                                Previous
+                            </button>
+                            <button type="button" @click="step = 3" 
+                                    class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                                Next Step
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     
-                    <!-- Password fields -->
+                    <!-- Step 3: Password & Submit -->
+                    <div x-show="step === 3" x-transition class="space-y-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Set Your Password</h3>
+                        
+                        <!-- Password fields -->
                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div x-data="{ showPassword: false }">
                             <label for="{{ form.password1.id_for_label }}" class="field-label">
@@ -536,9 +572,17 @@
                             {% endif %}
                         </div>
                     </div>
-
-                    <div>
-                        <button type="submit" class="btn-custom" :disabled="loading" @click="loading = true">
+                    
+                    <!-- Step 3 Navigation & Submit -->
+                    <div class="flex justify-between">
+                        <button type="button" @click="step = 2" 
+                                class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path>
+                            </svg>
+                            Previous
+                        </button>
+                        <button type="submit" class="btn-custom max-w-xs" :disabled="loading">
                             <span x-show="!loading" class="flex items-center justify-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
@@ -553,6 +597,7 @@
                                 Creating Account...
                             </span>
                         </button>
+                    </div>
                     </div>
                 </form>
                 
@@ -569,4 +614,18 @@
         </div>
     </div>
 </div>
+
+<script>
+function registrationForm() {
+    return {
+        userType: '{{ form.user_type.value|default:"student" }}',
+        loading: false,
+        step: 1,
+        maxSteps: 3,
+        init() {
+            console.log('Registration form initialized, step:', this.step);
+        }
+    }
+}
+</script>
 {% endblock %}

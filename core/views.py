@@ -36,8 +36,27 @@ def register(request):
         if form.is_valid():
             user = form.save()
             username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}! You can now log in.')
-            return redirect('core:login')
+            
+            # Automatically log in the user
+            login(request, user)
+            
+            # Get user profile to determine dashboard
+            user_profile = getattr(user, 'profile', None)
+            
+            # Success message
+            messages.success(request, f'Welcome, {username}! Your account has been created successfully.')
+            
+            # Redirect to appropriate dashboard based on user type
+            if user_profile:
+                if user_profile.user_type == 'student':
+                    return redirect('core:student_dashboard')
+                elif user_profile.user_type == 'admin':
+                    return redirect('core:admin_dashboard')
+                elif user_profile.user_type == 'osas':
+                    return redirect('core:osas_dashboard')
+            
+            # Fallback to dashboard router
+            return redirect('core:dashboard_router')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:

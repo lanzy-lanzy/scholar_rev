@@ -147,16 +147,15 @@ class CustomUserCreationForm(UserCreationForm):
         
         if commit:
             user.save()
-            # Create user profile with additional fields
-            profile = UserProfile.objects.create(
-                user=user,
-                user_type=self.cleaned_data['user_type'],
-                student_id=self.cleaned_data.get('student_id'),
-                campus=self.cleaned_data.get('campus'),
-                year_level=self.cleaned_data.get('year_level'),
-                department=self.cleaned_data.get('department'),
-                phone_number=self.cleaned_data.get('phone_number')
-            )
+            # Update the profile created by signal (don't create a new one)
+            profile = user.profile
+            profile.user_type = self.cleaned_data['user_type']
+            profile.student_id = self.cleaned_data.get('student_id')
+            profile.campus = self.cleaned_data.get('campus')
+            profile.year_level = self.cleaned_data.get('year_level')
+            profile.department = self.cleaned_data.get('department')
+            profile.phone_number = self.cleaned_data.get('phone_number')
+            profile.save()
         
         return user
 
