@@ -321,7 +321,7 @@
             </div>
 
             <!-- Review Actions -->
-            {% if application.status != 'approved' and application.status != 'rejected' %}
+            {% if application.status == 'pending' or application.status == 'under_review' or application.status == 'additional_info_required' %}
                 <div class="review-card">
                     <div class="card-header">
                         <h3 class="text-lg font-bold">Review Decision</h3>
@@ -364,6 +364,69 @@
                                 Submit Review
                             </button>
                         </form>
+                    </div>
+                </div>
+            {% else %}
+                <!-- Decision Already Made -->
+                <div class="review-card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
+                        <h3 class="text-lg font-bold">Review Completed</h3>
+                    </div>
+                    <div class="px-6 py-6">
+                        <div class="text-center py-4">
+                            {% if application.status == 'osas_approved' %}
+                                <div class="mb-4">
+                                    <svg class="w-16 h-16 mx-auto text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <h4 class="text-xl font-bold text-teal-700 mb-2">Recommended for Approval</h4>
+                                <p class="text-gray-600 mb-4">You have recommended this application for approval.</p>
+                            {% elif application.status == 'osas_rejected' %}
+                                <div class="mb-4">
+                                    <svg class="w-16 h-16 mx-auto text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <h4 class="text-xl font-bold text-purple-700 mb-2">Recommended for Rejection</h4>
+                                <p class="text-gray-600 mb-4">You have recommended this application for rejection.</p>
+                            {% elif application.status == 'approved' %}
+                                <div class="mb-4">
+                                    <svg class="w-16 h-16 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <h4 class="text-xl font-bold text-green-700 mb-2">Approved by Admin</h4>
+                                <p class="text-gray-600 mb-4">This application has been approved by the administrator.</p>
+                            {% elif application.status == 'rejected' %}
+                                <div class="mb-4">
+                                    <svg class="w-16 h-16 mx-auto text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <h4 class="text-xl font-bold text-red-700 mb-2">Rejected by Admin</h4>
+                                <p class="text-gray-600 mb-4">This application has been rejected by the administrator.</p>
+                            {% endif %}
+                            
+                            <div class="mt-6 p-4 rounded-lg text-left" style="background: var(--neutral-light);">
+                                <p class="info-label mb-2">Your Review</p>
+                                <p class="text-sm text-gray-700 mb-3">{{ application.reviewer_comments|default:"No comments provided" }}</p>
+                                <p class="text-xs text-gray-500">
+                                    Reviewed on {{ application.reviewed_at|date:"F d, Y \a\t g:i A" }}
+                                </p>
+                            </div>
+                            
+                            {% if application.status == 'osas_approved' or application.status == 'osas_rejected' %}
+                                <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                    <p class="text-sm text-blue-800">
+                                        <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Awaiting admin final decision
+                                    </p>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             {% endif %}

@@ -50,9 +50,10 @@ urlpatterns = [
     path('manage-scholarships/', views.manage_scholarships, name='manage_scholarships'),
     path('view-applications/', views.view_applications, name='view_applications'),
     path('manage-document-requirements/', views.manage_document_requirements, name='manage_document_requirements'),
+    path('scholarship-awardees/', views.scholarship_awardees, name='scholarship_awardees'),
     
     path('review-queue/', views.review_queue, name='review_queue'),
-    path('review/<int:application_id>/', views.review_application, name='review_application'),
+    path('review/<int:application_id>/', views.application_review, name='review_application'),
     path('assign/<int:application_id>/', views.assign_application, name='assign_application'),
     path('submit-review/<int:application_id>/', views.submit_review, name='submit_review'),
     

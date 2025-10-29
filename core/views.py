@@ -428,6 +428,11 @@ def application_review(request, application_id):
     )
     
     if request.method == 'POST':
+        # Check if OSAS has already made a decision
+        if application.status in ['osas_approved', 'osas_rejected', 'approved', 'rejected']:
+            messages.error(request, 'This application has already been reviewed. You cannot change the decision.')
+            return redirect('core:review_queue')
+        
         action = request.POST.get('action')
         comments = request.POST.get('comments', '')
         
@@ -817,21 +822,13 @@ def assign_application(request, application_id):
 
 @login_required
 def review_application(request, application_id):
-    """OSAS/Admin view to review individual application."""
-    if not (request.user.profile.is_osas or request.user.profile.is_admin):
-        messages.error(request, 'Access denied. OSAS or Administrator access required.')
-        return redirect('core:landing_page')
+    """OSAS/Admin view to review individual application - DEPRECATED.
     
-    application = get_object_or_404(
-        Application.objects.select_related('student', 'scholarship', 'reviewed_by'),
-        id=application_id
-    )
-    
-    context = {
-        'application': application,
-    }
-    
-    return render(request, 'osas/application_review.html', context)
+    This function is deprecated. Use application_review() instead which handles POST requests.
+    Keeping this for backwards compatibility but redirecting to the correct function.
+    """
+    # Redirect to the correct function that handles POST
+    return application_review(request, application_id)
 
 
 @login_required
@@ -1196,8 +1193,36 @@ def create_scholarship(request):
             scholarship = form.save(commit=False)
             scholarship.created_by = request.user
             scholarship.save()
-            # Save the many-to-many relationships (includes newly created requirements)
+            
+            # Handle custom document requirements
+            custom_doc_ids = []
+            for key in request.POST.keys():
+                if key.startswith('custom_document_name_'):
+                    counter = key.split('_')[-1]
+                    doc_name = request.POST.get(f'custom_document_name_{counter}', '').strip()
+                    doc_formats = request.POST.get(f'custom_document_formats_{counter}', 'PDF, DOC, DOCX').strip()
+                    doc_size = request.POST.get(f'custom_document_size_{counter}', '10')
+                    doc_required = request.POST.get(f'custom_document_required_{counter}') == 'on'
+                    doc_description = request.POST.get(f'custom_document_description_{counter}', '').strip()
+                    
+                    if doc_name:
+                        # Create new DocumentRequirement
+                        doc_req = DocumentRequirement.objects.create(
+                            name='other',
+                            custom_name=doc_name,
+                            description=doc_description,
+                            is_required=doc_required,
+                            file_format_requirements=doc_formats,
+                            max_file_size_mb=int(doc_size) if doc_size.isdigit() else 10
+                        )
+                        custom_doc_ids.append(doc_req.id)
+            
+            # Save the many-to-many relationships (standard requirements)
             form.save_m2m()
+            
+            # Add custom document requirements to the scholarship
+            if custom_doc_ids:
+                scholarship.document_requirements.add(*custom_doc_ids)
             
             # Handle scholarship requirements
             scholarship_requirements = []
@@ -1243,6 +1268,33 @@ def edit_scholarship(request, scholarship_id):
         form = ScholarshipForm(request.POST, instance=scholarship)
         if form.is_valid():
             scholarship = form.save()
+            
+            # Handle custom document requirements
+            custom_doc_ids = []
+            for key in request.POST.keys():
+                if key.startswith('custom_document_name_'):
+                    counter = key.split('_')[-1]
+                    doc_name = request.POST.get(f'custom_document_name_{counter}', '').strip()
+                    doc_formats = request.POST.get(f'custom_document_formats_{counter}', 'PDF, DOC, DOCX').strip()
+                    doc_size = request.POST.get(f'custom_document_size_{counter}', '10')
+                    doc_required = request.POST.get(f'custom_document_required_{counter}') == 'on'
+                    doc_description = request.POST.get(f'custom_document_description_{counter}', '').strip()
+                    
+                    if doc_name:
+                        # Create new DocumentRequirement
+                        doc_req = DocumentRequirement.objects.create(
+                            name='other',
+                            custom_name=doc_name,
+                            description=doc_description,
+                            is_required=doc_required,
+                            file_format_requirements=doc_formats,
+                            max_file_size_mb=int(doc_size) if doc_size.isdigit() else 10
+                        )
+                        custom_doc_ids.append(doc_req.id)
+            
+            # Add custom document requirements to the scholarship
+            if custom_doc_ids:
+                scholarship.document_requirements.add(*custom_doc_ids)
             
             # Handle scholarship requirements
             # First, delete existing requirements
@@ -1439,3 +1491,73 @@ def ajax_create_document_requirement(request):
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
 
+
+
+
+@login_required
+def scholarship_awardees(request):
+    """View list of students who have been awarded scholarships."""
+    if not (request.user.profile.is_admin or request.user.profile.is_osas):
+        messages.error(request, 'Access denied. Administrator or OSAS access required.')
+        return redirect('core:landing_page')
+    
+    # Get all approved applications
+    awardees = Application.objects.filter(
+        status='approved'
+    ).select_related(
+        'student', 'student__profile', 'scholarship', 'final_decision_by'
+    ).order_by('-final_decision_at')
+    
+    # Search filter
+    search_query = request.GET.get('search', '')
+    if search_query:
+        awardees = awardees.filter(
+            Q(student__first_name__icontains=search_query) |
+            Q(student__last_name__icontains=search_query) |
+            Q(student__username__icontains=search_query) |
+            Q(student__profile__student_id__icontains=search_query)
+        )
+    
+    # Campus filter
+    campus_filter = request.GET.get('campus')
+    if campus_filter:
+        awardees = awardees.filter(student__profile__campus=campus_filter)
+    
+    # Scholarship filter
+    scholarship_filter = request.GET.get('scholarship')
+    if scholarship_filter:
+        awardees = awardees.filter(scholarship_id=scholarship_filter)
+    
+    # Calculate statistics
+    from django.db.models import Sum
+    stats = {
+        'total_awardees': awardees.count(),
+        'total_amount': awardees.aggregate(
+            total=Sum('scholarship__award_amount')
+        )['total'] or 0,
+        'unique_scholarships': awardees.values('scholarship').distinct().count(),
+        'campuses_count': awardees.values('student__profile__campus').distinct().count(),
+    }
+    
+    # Pagination
+    paginator = Paginator(awardees, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Get filter options
+    from .models import UserProfile
+    scholarships_for_filter = Scholarship.objects.filter(
+        applications__status='approved'
+    ).distinct().order_by('title')
+    
+    context = {
+        'page_obj': page_obj,
+        'stats': stats,
+        'search_query': search_query,
+        'campus_filter': campus_filter,
+        'scholarship_filter': scholarship_filter,
+        'campus_choices': UserProfile.CAMPUS_CHOICES,
+        'scholarships_for_filter': scholarships_for_filter,
+    }
+    
+    return render(request, 'admin/scholarship_awardees.html', context)

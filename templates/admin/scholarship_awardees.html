@@ -1,0 +1,746 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Scholarship Awardees - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --gradient-primary: linear-gradient(135deg, #2c3930 0%, #4a5d4f 100%);
+        --gradient-accent: linear-gradient(135deg, #c8b896 0%, #dcd7c9 100%);
+    }
+
+    .page-header {
+        background: var(--gradient-primary);
+        border-radius: 20px;
+        padding: 2.5rem;
+        color: white;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        margin-bottom: 2rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 640px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid;
+        transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-card.total {
+        border-color: #3b82f6;
+    }
+
+    .stat-card.amount {
+        border-color: #10b981;
+    }
+
+    .stat-card.active {
+        border-color: #f59e0b;
+    }
+
+    .stat-card.campus {
+        border-color: #8b5cf6;
+    }
+
+    .filter-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .awardee-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1rem;
+        transition: all 0.3s;
+        border-left: 4px solid #10b981;
+    }
+
+    .awardee-card:hover {
+        transform: translateX(4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .awardee-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: var(--gradient-accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: white;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.375rem 0.875rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-success {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+    }
+
+    .badge-campus {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+    }
+
+    .export-btn {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .export-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .view-toggle-btn {
+        color: #6b7280;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+    }
+
+    .view-toggle-btn.active {
+        background: var(--gradient-primary);
+        color: white;
+    }
+
+    .view-toggle-btn:not(.active):hover {
+        background: #f3f4f6;
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 1.5rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.75rem;
+        }
+
+        .stat-card {
+            padding: 1rem;
+        }
+
+        .filter-card form {
+            grid-template-columns: 1fr;
+        }
+
+        .awardee-card {
+            padding: 1rem;
+        }
+
+        .awardee-avatar {
+            width: 48px;
+            height: 48px;
+            font-size: 1.125rem;
+        }
+
+        .export-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .view-toggle-btn {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .view-toggle-btn svg {
+            width: 0.875rem;
+            height: 0.875rem;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .page-header svg {
+            display: none;
+        }
+
+        .stat-card .text-3xl {
+            font-size: 1.5rem;
+        }
+
+        .export-btn span {
+            display: none;
+        }
+
+        .export-btn {
+            padding: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold mb-2">Scholarship Awardees</h1>
+                    <p class="text-lg opacity-90">Students who have been awarded scholarships</p>
+                </div>
+                <div class="hidden md:block">
+                    <svg class="w-16 h-16 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-gray-600 font-semibold">Total Awardees</span>
+                    <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                        </path>
+                    </svg>
+                </div>
+                <div class="text-3xl font-bold text-gray-900">{{ stats.total_awardees }}</div>
+            </div>
+
+            <div class="stat-card amount">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-gray-600 font-semibold">Total Amount</span>
+                    <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
+                </div>
+                <div class="text-3xl font-bold text-gray-900">₱{{ stats.total_amount|floatformat:0 }}</div>
+            </div>
+
+            <div class="stat-card active">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-gray-600 font-semibold">Active Scholarships</span>
+                    <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                        </path>
+                    </svg>
+                </div>
+                <div class="text-3xl font-bold text-gray-900">{{ stats.unique_scholarships }}</div>
+            </div>
+
+            <div class="stat-card campus">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-gray-600 font-semibold">Campuses</span>
+                    <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                        </path>
+                    </svg>
+                </div>
+                <div class="text-3xl font-bold text-gray-900">{{ stats.campuses_count }}</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-card">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Search Student</label>
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Name or Student ID..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Campus</label>
+                    <select name="campus"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">All Campuses</option>
+                        {% for value, label in campus_choices %}
+                        <option value="{{ value }}" {% if value in request.GET.campus %} selected{% endif %}>{{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Scholarship</label>
+                    <select name="scholarship"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">All Scholarships</option>
+                        {% for scholarship in scholarships_for_filter %}
+                        <option value="{{ scholarship.id }}" {% if request.GET.scholarship == scholarship.id|stringformat:"s" %}selected{% endif %}>
+                            {{ scholarship.title }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="flex items-end gap-2">
+                    <button type="submit"
+                        class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                        Apply
+                    </button>
+                    <a href="{% url 'core:scholarship_awardees' %}"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold">
+                        Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- View Toggle and Export Buttons -->
+        <div class="mb-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+            <!-- View Toggle -->
+            <div class="inline-flex rounded-lg border border-gray-300 bg-white p-1">
+                <button onclick="switchView('card')" id="cardViewBtn"
+                    class="view-toggle-btn active px-4 py-2 rounded-md font-semibold text-sm transition-all flex-1 sm:flex-none">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                        </path>
+                    </svg>
+                    <span class="hidden sm:inline">Cards</span>
+                </button>
+                <button onclick="switchView('table')" id="tableViewBtn"
+                    class="view-toggle-btn px-4 py-2 rounded-md font-semibold text-sm transition-all flex-1 sm:flex-none">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    <span class="hidden sm:inline">Table</span>
+                </button>
+            </div>
+
+            <!-- Export Buttons -->
+            <div class="flex gap-2">
+                <button onclick="exportToCSV()" class="export-btn flex-1 sm:flex-none justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                        </path>
+                    </svg>
+                    <span class="hidden sm:inline">Export CSV</span>
+                </button>
+                <button onclick="exportToPDF()" class="export-btn flex-1 sm:flex-none justify-center"
+                    style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    <span class="hidden sm:inline">Export PDF</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Card View -->
+        {% if page_obj %}
+        <div id="cardView" class="space-y-4">
+            {% for application in page_obj %}
+            <div class="awardee-card">
+                <div class="flex items-start gap-4">
+                        <div class="awardee-avatar">
+                        {{ application.student.first_name.0|upper }}{{ application.student.last_name.0|upper }}
+                    </div>
+
+                    <div class="flex-1">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">
+                                    {{ application.student.get_full_name }}
+                                </h3>
+                                <p class="text-sm text-gray-600">
+                                    Student ID: {{ application.student.profile.student_id|default:"N/A" }}
+                                </p>
+                            </div>
+                            <span class="badge badge-success">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                Approved
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                            <div>
+                                <p class="text-xs text-gray-500 font-semibold uppercase">Scholarship</p>
+                                <p class="text-sm font-semibold text-gray-900">{{ application.scholarship.title }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 font-semibold uppercase">Award Amount</p>
+                                <p class="text-lg font-bold text-green-600">₱{{ application.scholarship.award_amount|floatformat:0 }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 font-semibold uppercase">Campus</p>
+                                <span class="badge badge-campus">
+                                    {{ application.student.profile.get_campus_display|default:"N/A" }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                                <p class="text-xs text-gray-500 font-semibold uppercase">GPA</p>
+                                <p class="font-semibold text-gray-900">{{ application.gpa }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 font-semibold uppercase">Year Level</p>
+                                <p class="font-semibold text-gray-900">{{ application.student.profile.get_year_level_display|default:"N/A" }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 font-semibold uppercase">Department</p>
+                                <p class="font-semibold text-gray-900">{{ application.student.profile.department|default:"N/A" }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 font-semibold uppercase">Approved Date</p>
+                                <p class="font-semibold text-gray-900">{{ application.final_decision_at|date:"M d, Y" }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 flex gap-2">
+                            <a href="{% url 'core:application_detail' application.id %}"
+                                class="text-sm text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                    </path>
+                                </svg>
+                                View Details
+                            </a>
+                            <span class="text-gray-300">|</span>
+                            <a href="mailto:{{ application.student.email }}"
+                                class="text-sm text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                Contact
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Table View -->
+        <div id="tableView" class="hidden bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Student</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                ID</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Scholarship</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Amount</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Campus</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                GPA
+                            </th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Year
+                            </th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Approved</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for application in page_obj %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-3 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-8 w-8">
+                                        <div
+                                            class="h-8 w-8 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-xs">
+                                            {{ application.student.first_name.0|upper }}{{ application.student.last_name.0|upper }}
+                                        </div>
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">{{ application.student.get_full_name }}</div>
+                                        <div class="text-xs text-gray-500 hidden lg:block">{{ application.student.email }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ application.student.profile.student_id|default:"N/A" }}
+                            </td>
+                            <td class="px-3 py-4">
+                                <div class="text-sm font-medium text-gray-900 max-w-xs truncate">{{ application.scholarship.title }}</div>
+                            <td class="px-3 py-4 whitespace-nowrap">
+                                <div class="text-sm font-bold text-green-600">₱{{ application.scholarship.award_amount|floatformat:0 }}</div>
+                            </td>
+                            <td class="px-3 py-4 whitespace-nowrap">
+                                <span
+                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    {{ application.student.profile.get_campus_display|default:"N/A" }}
+                                </span>
+                            </td>
+                            <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ application.gpa }}
+                            </td>
+                            <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ application.student.profile.get_year_level_display|default:"N/A" }}
+                            </td>
+                            <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ application.final_decision_at|date:"M d, Y" }}
+                            </td>
+                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="{% url 'core:application_detail' application.id %}"
+                                    class="text-blue-600 hover:text-blue-900 block mb-1">View</a>
+                                <a href="mailto:{{ application.student.email }}"
+                                    class="text-green-600 hover:text-green-900 block">Email</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="mt-8 flex justify-center">
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&campus={{ campus_filter }}&scholarship={{ scholarship_filter }}"
+                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-l-md">
+                    Previous
+                </a>
+                {% endif %}
+
+                <span
+                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&campus={{ campus_filter }}&scholarship={{ scholarship_filter }}"
+                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-r-md">
+                    Next
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="bg-white rounded-2xl shadow-lg p-12 text-center">
+            <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                </path>
+            </svg>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">No Awardees Found</h3>
+            <p class="text-gray-600">No students have been awarded scholarships yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+    // View Switching
+    function switchView(view) {
+        const cardView = document.getElementById('cardView');
+        const tableView = document.getElementById('tableView');
+        const cardBtn = document.getElementById('cardViewBtn');
+        const tableBtn = document.getElementById('tableViewBtn');
+
+        if (view === 'card') {
+            cardView.classList.remove('hidden');
+            tableView.classList.add('hidden');
+            cardBtn.classList.add('active');
+            tableBtn.classList.remove('active');
+        } else {
+            cardView.classList.add('hidden');
+            tableView.classList.remove('hidden');
+            cardBtn.classList.remove('active');
+            tableBtn.classList.add('active');
+        }
+    }
+
+    // Export to CSV
+    function exportToCSV() {
+        const data = [
+            ['Student Name', 'Student ID', 'Email', 'Campus', 'Year Level', 'Department', 'Scholarship', 'Award Amount', 'GPA', 'Approved Date']
+        ];
+
+        {% for application in page_obj %}
+        data.push([
+            '{{ application.student.get_full_name }}',
+            '{{ application.student.profile.student_id|default:"N/A" }}',
+            '{{ application.student.email }}',
+            '{{ application.student.profile.get_campus_display|default:"N/A" }}',
+            '{{ application.student.profile.get_year_level_display|default:"N/A" }}',
+            '{{ application.student.profile.department|default:"N/A" }}',
+            '{{ application.scholarship.title }}',
+            '{{ application.scholarship.award_amount }}',
+            '{{ application.gpa }}',
+            '{{ application.final_decision_at|date:"Y-m-d" }}'
+        ]);
+        {% endfor %}
+
+        let csvContent = data.map(function (row) {
+            return row.map(function (cell) {
+                return '"' + cell + '"';
+            }).join(',');
+        }).join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'scholarship_awardees_' + new Date().toISOString().split('T')[0] + '.csv');
+        link.style.visibility = 'hidden';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Export to PDF
+    function exportToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('l', 'mm', 'a4'); // Landscape orientation
+
+        // Title
+        doc.setFontSize(18);
+        doc.setTextColor(44, 57, 48);
+        doc.text('Scholarship Awardees Report', 14, 15);
+
+        // Date
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text('Generated: ' + new Date().toLocaleDateString(), 14, 22);
+
+        // Statistics
+        doc.setFontSize(10);
+        doc.setTextColor(60);
+        doc.text('Total Awardees: {{ stats.total_awardees }}', 14, 28);
+        doc.text('Total Amount: ₱{{ stats.total_amount|floatformat:0 }}', 80, 28);
+        doc.text('Active Scholarships: {{ stats.unique_scholarships }}', 150, 28);
+
+        // Table data
+        const tableData = [];
+        {% for application in page_obj %}
+        tableData.push([
+            '{{ application.student.get_full_name }}',
+            '{{ application.student.profile.student_id|default:"N/A" }}',
+            '{{ application.scholarship.title }}',
+            '₱{{ application.scholarship.award_amount|floatformat:0 }}',
+            '{{ application.student.profile.get_campus_display|default:"N/A" }}',
+            '{{ application.gpa }}',
+            '{{ application.student.profile.get_year_level_display|default:"N/A" }}',
+            '{{ application.final_decision_at|date:"M d, Y" }}'
+        ]);
+        {% endfor %}
+
+        // Generate table
+        doc.autoTable({
+            startY: 35,
+            head: [['Student Name', 'Student ID', 'Scholarship', 'Amount', 'Campus', 'GPA', 'Year', 'Approved']],
+            body: tableData,
+            theme: 'grid',
+            headStyles: {
+                fillColor: [44, 57, 48],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold',
+                fontSize: 9
+            },
+            bodyStyles: {
+                fontSize: 8,
+                cellPadding: 3
+            },
+            alternateRowStyles: {
+                fillColor: [245, 245, 245]
+            },
+            columnStyles: {
+                0: { cellWidth: 40 },
+                1: { cellWidth: 25 },
+                2: { cellWidth: 50 },
+                3: { cellWidth: 25, halign: 'right' },
+                4: { cellWidth: 30 },
+                5: { cellWidth: 15, halign: 'center' },
+                6: { cellWidth: 20 },
+                7: { cellWidth: 25 }
+            },
+            margin: { top: 35, left: 14, right: 14 }
+        });
+
+        // Footer
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text('Page ' + i + ' of ' + pageCount, doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
+        }
+
+        // Save
+        doc.save('scholarship_awardees_' + new Date().toISOString().split('T')[0] + '.pdf');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+# Script to create scholar list template
+
+template_content = """{% extends 'base/base.html' %}
+
+{% block title %}Scholar List{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="mb-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Scholar List</h1>
+                <p class="mt-1 text-sm text-gray-600">Students who have availed scholarships</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'core:scholar_statistics' %}" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    Statistics
+                </a>
+                <a href="{% url 'core:export_scholars_csv' %}?{{ request.GET.urlencode }}" class="px-4 py-2 rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                    Export CSV
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-sm text-gray-600">Total Scholars</div>
+                <div class="text-2xl font-bold text-blue-600">{{ total_scholars }}</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-sm text-gray-600">Total Amount Awarded</div>
+                <div class="text-2xl font-bold text-green-600">${{ total_amount_awarded|floatformat:2 }}</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-sm text-gray-600">Average GPA</div>
+                <div class="text-2xl font-bold text-purple-600">{{ average_gpa|floatformat:2 }}</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-sm text-gray-600">Scholarships</div>
+                <div class="text-2xl font-bold text-orange-600">{{ scholarship_distribution|length }}</div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="text-lg font-semibold mb-4">Filter Scholars</h3>
+            <form method="get" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Name, ID, Email" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+"""
+
+with open('templates/shared/scholar_list.html', 'w', encoding='utf-8') as f:
+    f.write(template_content)
+
+print("Template file created successfully!")

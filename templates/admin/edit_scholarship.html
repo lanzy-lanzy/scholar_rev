@@ -162,6 +162,55 @@
         display: inline-flex;
         align-items: center;
     }
+    
+    .custom-doc-item {
+        background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+        border: 2px solid #ffc107 !important;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .custom-doc-item:hover {
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+    }
+    
+    .standard-doc-item:has(input:checked) {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        border-color: #4caf50 !important;
+    }
+    
+    .remove-doc-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: #fee;
+        color: #dc3545;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .remove-doc-btn:hover {
+        background: #dc3545;
+        color: white;
+        transform: rotate(90deg);
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; transform: scale(0.95); }
+    }
+    
+    .animate-fade-out {
+        animation: fadeOut 0.3s ease-out forwards;
+    }
 </style>
 {% endblock %}
 
@@ -362,33 +411,53 @@
                     <h3 class="form-section-title text-xl">Document Requirements</h3>
                     
                     <div class="checkbox-container p-6 rounded-xl">
-                        <div class="mb-4">
+                        <div class="flex justify-between items-center mb-4">
                             <p class="text-sm font-medium" style="color: var(--primary-dark);">
-                                Select which documents students must upload when applying for this scholarship:
+                                Select or add document requirements
                             </p>
+                            <button type="button" id="addDocumentRequirementBtn" class="btn-primary px-4 py-2 text-sm flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Add Custom Document
+                            </button>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {% for choice in form.document_requirements %}
-                                <div class="flex items-start p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                                    <div class="flex items-center h-5">
-                                        {{ choice.tag }}
+                        <!-- Standard Documents -->
+                        <div class="mb-6">
+                            <h4 class="text-sm font-semibold mb-3" style="color: var(--primary-dark);">Standard Documents</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="standardDocuments">
+                                {% for choice in form.document_requirements %}
+                                    <div class="flex items-start p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors standard-doc-item">
+                                        <div class="flex items-center h-5">
+                                            {{ choice.tag }}
+                                        </div>
+                                        <div class="ml-3">
+                                            <label for="{{ choice.id_for_label }}" class="text-sm font-medium cursor-pointer" style="color: var(--primary-dark);">
+                                                {{ choice.choice_label }}
+                                            </label>
+                                        </div>
                                     </div>
-                                    <div class="ml-3">
-                                        <label for="{{ choice.id_for_label }}" class="text-sm font-medium cursor-pointer" style="color: var(--primary-dark);">
-                                            {{ choice.choice_label }}
-                                        </label>
+                                {% empty %}
+                                    <div class="col-span-2 text-center py-8">
+                                        <svg class="mx-auto h-12 w-12 mb-4" style="color: var(--accent-warm);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <p style="color: var(--accent-warm);" class="font-medium">No document requirements available</p>
+                                        <p class="text-sm text-gray-500 mt-1">Create document requirements first to assign them to scholarships.</p>
                                     </div>
-                                </div>
-                            {% empty %}
-                                <div class="col-span-2 text-center py-8">
-                                    <svg class="mx-auto h-12 w-12 mb-4" style="color: var(--accent-warm);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                    </svg>
-                                    <p style="color: var(--accent-warm);" class="font-medium">No document requirements available</p>
-                                    <p class="text-sm text-gray-500 mt-1">Create document requirements first to assign them to scholarships.</p>
-                                </div>
-                            {% endfor %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Custom Documents -->
+                        <div>
+                            <h4 class="text-sm font-semibold mb-3" style="color: var(--primary-dark);">Custom Documents</h4>
+                            <div id="customDocumentsList"></div>
+                            
+                            <div id="customDocumentsEmpty" class="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                                <svg class="mx-auto h-10 w-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                <p class="font-medium text-gray-600 text-sm">No custom documents added yet</p>
+                                <p class="text-xs text-gray-500 mt-1">Click "Add Custom Document" to create additional requirements</p>
+                            </div>
                         </div>
                         
                         {% if form.document_requirements.errors %}
@@ -532,6 +601,82 @@
                 this.parentElement.style.transform = 'translateY(0)';
             });
         });
+        
+        // Custom Document Requirements
+        let docCounter = 0;
+        const addDocBtn = document.getElementById('addDocumentRequirementBtn');
+        
+        if (addDocBtn) {
+            addDocBtn.addEventListener('click', function() {
+                docCounter++;
+                const empty = document.getElementById('customDocumentsEmpty');
+                if (empty) empty.style.display = 'none';
+                
+                const item = document.createElement('div');
+                item.className = 'custom-doc-item animate-slide-up';
+                item.innerHTML = `
+                    <div class="flex items-start gap-3 mb-3">
+                        <input type="text" name="custom_document_name_${docCounter}" 
+                               class="form-input flex-1" 
+                               placeholder="Document name (e.g., Letter of Recommendation)" 
+                               required>
+                        <button type="button" class="remove-doc-btn">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                            <label class="text-xs font-semibold mb-1 block" style="color: var(--primary-dark);">File Formats</label>
+                            <input type="text" name="custom_document_formats_${docCounter}" 
+                                   class="form-input text-sm" 
+                                   placeholder="PDF, DOC, DOCX" 
+                                   value="PDF, DOC, DOCX">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold mb-1 block" style="color: var(--primary-dark);">Max Size (MB)</label>
+                            <input type="number" name="custom_document_size_${docCounter}" 
+                                   class="form-input text-sm" 
+                                   placeholder="10" 
+                                   value="10" 
+                                   min="1" 
+                                   max="50">
+                        </div>
+                        <div class="flex items-end">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="custom_document_required_${docCounter}" 
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" 
+                                       checked>
+                                <span class="text-sm font-medium" style="color: var(--primary-dark);">Required</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label class="text-xs font-semibold mb-1 block" style="color: var(--primary-dark);">Description (Optional)</label>
+                        <textarea name="custom_document_description_${docCounter}" 
+                                  class="form-input text-sm" 
+                                  rows="2" 
+                                  placeholder="Additional instructions for this document"></textarea>
+                    </div>
+                `;
+                
+                document.getElementById('customDocumentsList').appendChild(item);
+                
+                item.querySelector('.remove-doc-btn').addEventListener('click', function() {
+                    item.classList.add('animate-fade-out');
+                    setTimeout(() => {
+                        item.remove();
+                        const remainingItems = document.querySelectorAll('#customDocumentsList .custom-doc-item');
+                        if (remainingItems.length === 0) {
+                            document.getElementById('customDocumentsEmpty').style.display = 'block';
+                        }
+                    }, 300);
+                });
+                
+                item.querySelector('input[name^="custom_document_name_"]').focus();
+            });
+        }
     });
 </script>
 {% endblock %}
